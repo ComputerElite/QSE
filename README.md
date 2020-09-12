@@ -8,5 +8,4 @@ Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\Custo
 Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Then copy the directory Path and past it into QSE.bat when it askes you. It'll start zipping them right away. After it has finished it'll let you know how many Songs it (tried) zipped.
 
 # Known Issues
-- Some Songs have a Space after their name. Then the zip will be named something like "iLLness LiLin .zip" but there's nothing to worry.
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly. (I'm working on that)
