@@ -9,4 +9,4 @@ It will also work for PC Songs.
 # Known Issues
 - Some Songs have a Space after their name. Then the zip will be named something like "iLLness LiLin .zip" but there's nothing to worry.
 - It will not automatically detect Songs. It'll check every Folder.
-- Exported Songs Counter may be wrong.
+- Exported Songs Counter may be wrong due to reconizing the Song but don't zippinh them correctly.
