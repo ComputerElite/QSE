@@ -1,4 +1,4 @@
-# QSE
+# QSE (Quest Song exporter)
 It's a Tool to zip Beat Saber songs from Quest (custom_level_SomeShit) to the right names.
 
 # How-to
