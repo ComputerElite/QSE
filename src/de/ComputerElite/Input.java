@@ -86,6 +86,9 @@ public class Input {
 								}
 							}
 							int Time = 0;
+							while(Name.substring(Name.length()-1, Name.length()).equalsIgnoreCase(" ")) {
+								Name = Name.substring(0, Name.length()-1);
+							}
 							while(list.contains(Name)) {
 								Time++;
 								if(Time > 1) {
@@ -134,6 +137,9 @@ public class Input {
 								}
 							}
 							int Time = 0;
+							while(Name.substring(Name.length()-1, Name.length()).equalsIgnoreCase(" ")) {
+								Name = Name.substring(0, Name.length()-1);
+							}
 							while(list.contains(Name)) {
 								Time++;
 								if(Time > 1) {
