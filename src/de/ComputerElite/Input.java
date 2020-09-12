@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import de.ComputerElite.zip.ZipIt;
@@ -13,6 +14,7 @@ public class Input {
 
 	public static void main(String[] args) throws IOException {
 		ArrayList<String> list = new ArrayList<>();
+		ArrayList<String> content = new ArrayList<>();
 		int count = 0;
 		int exported = 0;
 		String Name = "";
@@ -32,10 +34,25 @@ public class Input {
 				continue;
 			}
 			
+			File Path = new File(Source+File.separator+directories[i]);
+			if(!Path.isDirectory()) {
+				System.out.println(directories[i]+" is no Song");
+				continue;
+			}
+			
+			File current = new File(Source+File.separator+directories[i]);
+			String[] contents = current.list();
+			content = new ArrayList<String>(Arrays.asList(contents));
+			if(!content.contains("Info.dat") && !content.contains("info.dat")) {
+				System.out.println(directories[i]+" is no Song");
+				continue;
+			}
+			
+			
 			BufferedReader reader;
 			try {
 				reader = new BufferedReader(new FileReader(
-						Source+File.separator+directories[i]+File.separator+"Info.dat" ));
+				Source+File.separator+directories[i]+File.separator+"Info.dat" ));
 				String line = reader.readLine();
 				while (line != null) {
 					//System.out.println(line);
@@ -47,7 +64,7 @@ public class Input {
 							Name = "";
 							for(int n = 0; n<line.length(); n++) {
 								if(count == 7) {
-										Name = Name + line.substring(n, n+1);
+									Name = Name + line.substring(n, n+1);
 								}
 								if(line.substring(n, n+1).equalsIgnoreCase("\"")) {
 									count++;
@@ -80,8 +97,8 @@ public class Input {
 								
 							}
 							list.add(Name);
-							System.out.println(Name);
-							System.out.println(directories[i]);
+							System.out.println("Song Name: "+Name);
+							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
 							ZipIt.zipDirectory(src, Source+File.separator+Name+".zip");
@@ -128,8 +145,8 @@ public class Input {
 								
 							}
 							list.add(Name);
-							System.out.println(Name);
-							System.out.println(directories[i]);
+							System.out.println("Song Name: "+Name);
+							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
 							ZipIt.zipDirectory(src, Source+File.separator+Name+".zip");
