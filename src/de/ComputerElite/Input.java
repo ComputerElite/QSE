@@ -154,7 +154,7 @@ public class Input {
 		//ZipIt.zipDirectory(src, Output);;
 		System.out.println("");
 		System.out.println("");
-		System.out.println("Finished! Exported "+list.size()+" Songs");
+		System.out.println("Finished! Exported "+exported+" Songs");
 	}
 
 }
