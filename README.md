@@ -9,5 +9,4 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 
 # Known Issues
 - Some Songs have a Space after their name. Then the zip will be named something like "iLLness LiLin .zip" but there's nothing to worry.
-- It will not automatically detect Songs. It'll check every Folder.
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly.
