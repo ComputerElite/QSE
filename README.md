@@ -7,7 +7,7 @@ Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\Custo
 # How-to (PC)
 Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Then copy the directory Path and past it into QSE.bat when it askes you. It'll start zipping them right away. After it has finished it'll let you know how many Songs it (tried) zipped.
 
-# Differences between the Java and c# version
+# Differences between the Java and C# version
 - The c# version has a GUI.
 - The Java version overwrites old zip files the c# version doesn't.
 - The Java version outputs what it does in real time. The c# version only after it has finished.
