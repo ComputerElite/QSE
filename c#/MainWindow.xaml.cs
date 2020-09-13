@@ -27,6 +27,9 @@ namespace Quest_Song_Exporter
     /// </summary>
     public partial class MainWindow : Window
     {
+		String path;
+		String dest;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,18 +45,19 @@ namespace Quest_Song_Exporter
             fd.FileName = "select";
             if (fd.ShowDialog() == true)
             {
-                String path = fd.FileName;
+                path = fd.FileName;
                 path = path.Replace("\\select.directory", "");
-                if (!System.IO.Directory.Exists(path))
+				if (!System.IO.Directory.Exists(path))
                 {
                     System.IO.Directory.CreateDirectory(path);
                 }
-				input(path);
+				txtboxs.Text = path;
 
-            }
+
+			}
         }
 
-        public void input(String Path)
+        public void input(String Path, String dest)
         {
             ArrayList list = new ArrayList();
             ArrayList content = new ArrayList();
@@ -171,7 +175,7 @@ namespace Quest_Song_Exporter
 								//File sour = new File(Source);
 								//File src = new File(sour + File.separator + directories[i] + File.separator);
 								//ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
-								zip(directories[i], Source + "\\" + Name + ".zip");
+								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
 								Name = "";
 								//src = new File("");
@@ -241,7 +245,7 @@ namespace Quest_Song_Exporter
 								//File sour = new File(Source);
 								//File src = new File(sour + File.separator + directories[i] + File.separator);
 								//ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
-								zip(directories[i], Source + "\\" + Name + ".zip");
+								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
 								Name = "";
 								//src = new File("");
@@ -274,6 +278,29 @@ namespace Quest_Song_Exporter
 
 		}
 
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+			SaveFileDialog fd = new SaveFileDialog();
+			fd.Filter = "Directory|*this.directory";
+			fd.FileName = "select";
+			if (fd.ShowDialog() == true)
+			{
+				dest = fd.FileName;
+				dest = dest.Replace("\\select.directory", "");
+				if (!System.IO.Directory.Exists(dest))
+				{
+					System.IO.Directory.CreateDirectory(dest);
+				}
+				txtboxd.Text = dest;
 
-	}
+
+			}
+
+		}
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+			input(path, dest);
+        }
+    }
 }

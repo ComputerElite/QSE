@@ -21,6 +21,8 @@ public class Input {
 		Scanner Scanner = new Scanner(System.in);
 		System.out.print("Directory where the folders are located: ");
 		String Source = Scanner.nextLine();
+		System.out.print("Destination Folder: ");
+		String dest = Scanner.nextLine();
 		Scanner.close();
 		
 		File file = new File(Source);
@@ -104,7 +106,7 @@ public class Input {
 							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
-							ZipIt.zipDirectory(src, Source+File.separator+Name+".zip");
+							ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
 							exported++;
 							Name = "";
 							src = new File("");
@@ -155,7 +157,7 @@ public class Input {
 							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
-							ZipIt.zipDirectory(src, Source+File.separator+Name+".zip");
+							ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
 							exported++;
 							Name = "";
 							src = new File("");

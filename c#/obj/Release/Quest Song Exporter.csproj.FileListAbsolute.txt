@@ -14,3 +14,4 @@ C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\
 C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.csproj.CoreCompileInputs.cache
 C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.exe
 C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.pdb
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.csprojAssemblyReference.cache
