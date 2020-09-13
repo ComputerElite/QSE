@@ -6,6 +6,7 @@ c# version (GUI):
 
 Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC.After it has finished copying start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located. Do the same with your destination directory. Click start and wait a few minutes (about 2 - 6). After it has finished it'll let you know how many Songs it zipped. Be patient. It won't give you any output until it has finished.
 
+
 Java version: 
 
 Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC. After it has finished copying start QSE.bat. It asks you to put in a Directory where your songs folders are. You have to put in the folder you just copied them. Then it askes you where you want to put the finished zips. Put there a Directory of your choice. It'll start zipping them right away. After it has finished it'll let you know how many Songs it (tried) zipped.
@@ -14,6 +15,7 @@ Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\Custo
 c# version (GUI):
 
 Start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 2 - 6). After it has finished it'll let you know how many Songs it zipped. Be patient. It won't give you any output until it has finished.
+
 
 Java version:
 
