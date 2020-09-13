@@ -1,0 +1,16 @@
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\bin\Release\Quest Song Exporter.exe.config
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\bin\Release\Quest Song Exporter.exe
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\bin\Release\Quest Song Exporter.pdb
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Simple Styles.baml
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\MainWindow.g.cs
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\App.g.cs
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter_MarkupCompile.cache
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter_MarkupCompile.lref
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\App.baml
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\MainWindow.baml
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.g.resources
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest_Song_Exporter.Properties.Resources.resources
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.csproj.GenerateResource.cache
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.csproj.CoreCompileInputs.cache
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.exe
+C:\Users\ComputerElite\source\repos\Quest Song Exporter\Quest Song Exporter\obj\Release\Quest Song Exporter.pdb
