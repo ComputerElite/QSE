@@ -4,7 +4,7 @@ A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right n
 # How-to (Quest)
 ### C# version (GUI):
 
-Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC. After it has finished copying start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located. Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped. Be patient. It won't give you any output until it has finished.
+Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC. After it has finished copying start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located. Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 
 ### Java version: 
 
@@ -13,7 +13,7 @@ Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\Custo
 # How-to (PC)
 ### C# version (GUI):
 
-Start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 2 - 6). After it has finished it'll let you know how many Songs it zipped. Be patient. It won't give you any output until it has finished.
+Start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 
 ### Java version:
 
