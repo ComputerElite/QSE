@@ -21,7 +21,6 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 
 # Differences between the Java and C# version
 - The C# version has a GUI.
-- The Java version overwrites old zip files the c# version doesn't.
 - Java Version requiers Java. The C# version should work on every Windows PC.
 - C# Version is about 24% faster.
 
