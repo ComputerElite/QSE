@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Quest_Song_Exporter
 {
@@ -33,8 +34,9 @@ namespace Quest_Song_Exporter
         public MainWindow()
         {
             InitializeComponent();
-			txtbox.Text = "After Selecting the Song Folder the program is working. The duration without any output depends on how many songs you have.";
-
+			txtbox.Text = "Output:";
+			txtboxd.Text = "Please choose your destination folder.";
+			txtboxs.Text = "Please choose your Song folder.";
 
 		}
 
@@ -252,7 +254,8 @@ namespace Quest_Song_Exporter
 
 							}
 						}
-						
+						Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,new Action(delegate { }));
+						txtbox.ScrollToEnd();
 
 					}
 					reader.Close();
@@ -300,6 +303,10 @@ namespace Quest_Song_Exporter
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+			if(dest == null)
+            {
+				dest = path;
+            }
 			input(path, dest);
         }
     }

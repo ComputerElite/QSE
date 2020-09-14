@@ -23,6 +23,9 @@ public class Input {
 		String Source = Scanner.nextLine();
 		System.out.print("Destination Folder: ");
 		String dest = Scanner.nextLine();
+		if(dest.equalsIgnoreCase("")) {
+			dest = Source;
+		}
 		Scanner.close();
 		
 		File file = new File(Source);
