@@ -28,3 +28,8 @@ Both should work the same.
 
 # Known Issues
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly. (I'm working on that; Could be fixed the c# version)
+
+# to-do
+- Adding Check at output of GUI version to check if overwriting zips is enabled (ETA 15.09.2020)
+- Adding Image to GUI (ETA when I get an Idea)
+- Checking all Info.dat Files types possible (ETA N/A)
