@@ -62,9 +62,11 @@ namespace Quest_Song_Exporter
 
         public void input(String Path, String dest)
         {
+
             ArrayList list = new ArrayList();
             ArrayList content = new ArrayList();
             int count = 0;
+			int overwritten = 0;
             int exported = 0;
             String Name = "";
             String Source = Path;
@@ -178,6 +180,18 @@ namespace Quest_Song_Exporter
 								//File sour = new File(Source);
 								//File src = new File(sour + File.separator + directories[i] + File.separator);
 								//ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
+
+								if ((bool)box.IsChecked)
+								{
+									bool v = File.Exists(dest + "\\" + Name + ".zip");
+									if (v)
+									{
+										File.Delete(dest + "\\" + Name + ".zip");
+										txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
+										overwritten++;
+									}
+								}
+
 								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
 								Name = "";
@@ -245,9 +259,21 @@ namespace Quest_Song_Exporter
 								list.Add(Name);
 								txtbox.AppendText("\nSong Name: " + Name);
 								txtbox.AppendText("\nFolder name: " + directories[i]);
-								//File sour = new File(Source);
-								//File src = new File(sour + File.separator + directories[i] + File.separator);
-								//ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
+                                //File sour = new File(Source);
+                                //File src = new File(sour + File.separator + directories[i] + File.separator);
+                                //ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
+
+                                if ((bool)box.IsChecked)
+                                {
+                                    bool v = File.Exists(dest + "\\" + Name + ".zip");
+                                    if (v)
+                                    {
+										File.Delete(dest + "\\" + Name + ".zip");
+										txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
+										overwritten++;
+									}
+                                }
+
 								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
 								Name = "";
@@ -273,6 +299,7 @@ namespace Quest_Song_Exporter
 			txtbox.AppendText("\n");
 			txtbox.AppendText("\n");
 			txtbox.AppendText("\nFinished! Exported " + exported + " Songs");
+			txtbox.AppendText("\nOverwritten " + overwritten + " existing zips");
 			txtbox.ScrollToEnd();
 		}
 
