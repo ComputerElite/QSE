@@ -1,5 +1,5 @@
 # QSE (Quest Song exporter)
-A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right names.
+A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right names. You can also make a List of all Songs you have (Beta).
 
 # How-to (Quest)
 ### C# version (GUI):
