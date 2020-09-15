@@ -353,7 +353,520 @@ namespace Quest_Song_Exporter
             {
 				dest = path;
             }
-			input(path, dest);
+			if((bool)index.IsChecked)
+            {
+				//Index Songs
+				IndexSongs(path, dest);
+            } else
+            {
+				input(path, dest);
+			}
         }
+
+
+		public void IndexSongs(String Path, String dest)
+		{
+			ArrayList list = new ArrayList();
+			ArrayList Folder = new ArrayList();
+			ArrayList Version = new ArrayList();
+			ArrayList BPM = new ArrayList();
+			ArrayList Author = new ArrayList();
+			ArrayList SubName = new ArrayList();
+			ArrayList MAuthor = new ArrayList();
+			int count = 0;
+			int exported = 0;
+			String Name = "";
+			String Source = Path;
+			String V = "";
+			String B = "";
+			String A = "";
+			String S = "";
+			String M = "";
+
+			string[] directories = Directory.GetDirectories(Path);
+
+
+
+			for (int i = 0; i < directories.Length; i++)
+			{
+				//Check if Folder is Valid Song
+				txtbox.AppendText("\n");
+
+				if (!File.Exists(directories[i] + "\\" + "Info.dat") && !File.Exists(directories[i] + "\\" + "info.dat"))
+				{
+					txtbox.AppendText("\n" + directories[i] + " is no Song");
+					continue;
+				}
+				String dat = "";
+				if (File.Exists(directories[i] + "\\" + "Info.dat"))
+				{
+					dat = directories[i] + "\\" + "Info.dat";
+
+				}
+				if (File.Exists(directories[i] + "\\" + "info.dat"))
+				{
+					dat = directories[i] + "\\" + "info.dat";
+
+				}
+
+
+				try
+				{
+					StreamReader reader = new StreamReader(@dat);
+					String line;
+					while ((line = reader.ReadLine()) != null)
+					{
+
+						/////////Song Name
+						
+						if (line.Contains("songName"))
+						{
+							if (line.Contains("version") && line.Contains("songName"))
+							{
+								//BeatSage
+								count = 0;
+								Name = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 7)
+									{
+
+										Name = Name + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								Name = Name.Substring(0, Name.Length - 1);
+								int Time = 0;
+								while (Name.Substring(Name.Length - 1, 1).Equals(" "))
+								{
+									Name = Name.Substring(0, Name.Length - 1);
+								}
+
+								while (list.Contains(Name))
+								{
+									Time++;
+									if (Time > 1)
+									{
+										Name = Name.Substring(0, Name.Length - 1);
+										Name = Name + Time;
+									}
+									else
+									{
+										Name = Name + " " + Time;
+									}
+
+								}
+								list.Add(Name);
+								Folder.Add(directories[i]);
+								txtbox.AppendText("\nSong Name: " + Name);
+								txtbox.AppendText("\nFolder name: " + directories[i]);
+
+								exported++;
+								Name = "";
+
+							}
+							else
+							{
+								//Normal Map
+								count = 0;
+								Name = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 3)
+									{
+
+										Name = Name + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								Name = Name.Substring(0, Name.Length - 1);
+								int Time = 0;
+								while (Name.Substring(Name.Length - 1, 1).Equals(" "))
+								{
+									Name = Name.Substring(0, Name.Length - 1);
+								}
+
+								while (list.Contains(Name))
+								{
+									Time++;
+									if (Time > 1)
+									{
+										Name = Name.Substring(0, Name.Length - 1);
+										Name = Name + Time;
+									}
+									else
+									{
+										Name = Name + " " + Time;
+									}
+
+								}
+								list.Add(Name);
+								Folder.Add(directories[i]);
+								txtbox.AppendText("\nSong Name: " + Name);
+								txtbox.AppendText("\nFolder name: " + directories[i]);
+
+								exported++;
+								Name = "";
+							}
+						}
+
+						/////////Version
+						
+						if (line.Contains("version"))
+						{
+							//BeatSage
+							count = 0;
+							V = "";
+							for (int n = 0; n < line.Length; n++)
+							{
+								if (count == 3)
+								{
+
+									V = V + line.Substring(n, 1);
+								}
+
+								if (line.Substring(n, 1).Equals("\""))
+								{
+									count++;
+								}
+							}
+
+							V = V.Substring(0, V.Length - 1);
+							
+							Version.Add(V);
+							txtbox.AppendText("\nVersion: " + V);
+							V = "";
+						}
+
+						/////////Song Sub Name
+						
+						if (line.Contains("songSubName"))
+						{
+							if (line.Contains("version") && line.Contains("songName"))
+							{
+								//BeatSage
+								count = 0;
+								S = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 11)
+									{
+
+										S = S + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+								if (!S.Equals("\""))
+                                {
+									S = S.Substring(0, S.Length - 1);
+								} else
+                                {
+									S = "N/A";
+                                }
+								
+
+								SubName.Add(S);
+								txtbox.AppendText("\nSubName: " + S);
+								S = "";
+							}
+							else
+							{
+								//normal map
+								count = 0;
+								S = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 3)
+									{
+
+										S = S + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!S.Equals("\""))
+								{
+									S = S.Substring(0, S.Length - 1);
+								}
+								else
+								{
+									S = "N/A";
+								}
+
+								SubName.Add(S);
+								txtbox.AppendText("\nSubName: " + S);
+								S = "";
+							}
+						}
+
+						/////////Song Author
+
+						if (line.Contains("songAuthorName"))
+						{
+							if (line.Contains("version") && line.Contains("songName"))
+							{
+								//BeatSage
+								count = 0;
+								A = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 11)
+									{
+
+										A = A + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!A.Equals("\""))
+								{
+									A = A.Substring(0, A.Length - 1);
+								}
+								else
+								{
+									A = "N/A";
+								}
+
+								Author.Add(A);
+								txtbox.AppendText("\nSong author: " + A);
+								A = "";
+							}
+							else
+							{
+								//normal map
+								count = 0;
+								A = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 3)
+									{
+
+										A = A + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!A.Equals("\""))
+								{
+									A = A.Substring(0, A.Length - 1);
+								}
+								else
+								{
+									A = "N/A";
+								}
+
+								Author.Add(A);
+								txtbox.AppendText("\nSong author: " + A);
+								A = "";
+							}
+						}
+
+						/////////Map Author
+
+						if (line.Contains("levelAuthor"))
+						{
+							if (line.Contains("version") && line.Contains("songName"))
+							{
+								//BeatSage
+								count = 0;
+								M = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 19)
+									{
+
+										M = M + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!M.Equals("\""))
+								{
+									M = M.Substring(0, M.Length - 1);
+								}
+								else
+								{
+									M = "N/A";
+								}
+
+								MAuthor.Add(M);
+								txtbox.AppendText("\nMap author: " + M);
+								M = "";
+							}
+							else
+							{
+								//normal map
+								count = 0;
+								M = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 3)
+									{
+
+										M = M + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!M.Equals("\""))
+								{
+									M = M.Substring(0, M.Length - 1);
+								}
+								else
+								{
+									M = "N/A";
+								}
+
+								MAuthor.Add(M);
+								txtbox.AppendText("\nMap author: " + M);
+								M = "";
+							}
+						}
+
+						/////////BPM
+
+						if (line.Contains("beatsPerMinute"))
+						{
+							if (line.Contains("version") && line.Contains("songName"))
+							{
+								//BeatSage
+								count = 0;
+								B = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 22)
+									{
+
+										B = B + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!B.Equals("\""))
+								{
+									B = B.Substring(1, B.Length - 2);
+								}
+								else
+								{
+									B = "N/A";
+								}
+
+								BPM.Add(B);
+								txtbox.AppendText("\nBPM: " + B);
+								B = "";
+							}
+							else
+							{
+								//normal map
+								count = 0;
+								B = "";
+								for (int n = 0; n < line.Length; n++)
+								{
+									if (count == 2)
+									{
+
+										B = B + line.Substring(n, 1);
+									}
+
+									if (line.Substring(n, 1).Equals("\""))
+									{
+										count++;
+									}
+								}
+
+								if (!B.Equals("\""))
+								{
+									B = B.Substring(1, B.Length - 2);
+								}
+								else
+								{
+									B = "N/A";
+								}
+
+								BPM.Add(B);
+								txtbox.AppendText("\nBPM: " + B);
+								B = "";
+							}
+						}
+
+						Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+						txtbox.ScrollToEnd();
+
+					}
+					reader.Close();
+				}
+				catch
+				{
+				}
+			}
+			ArrayList txt = new ArrayList();
+            //ArrayList list = new ArrayList();
+            //ArrayList Folder = new ArrayList();
+            //ArrayList Version = new ArrayList();
+            //ArrayList BPM = new ArrayList();
+            //ArrayList Author = new ArrayList();
+            //ArrayList SubName = new ArrayList();
+            //ArrayList MAuthor = new ArrayList();
+            txt.Add("List of " + exported + " Songs");
+			txt.Add("Use ctrl + f to search for Songs");
+			txt.Add("");
+			txt.Add("");
+			for (int C = 0; C < list.Count; C++)
+            {
+				txt.Add("Name: " + list[C]);
+				txt.Add("Song Sub Name: " + SubName[C]);
+				txt.Add("BPM: " + BPM[C]);
+				txt.Add("Song Author: " + Author[C]);
+				txt.Add("Map Author: " + MAuthor[C]);
+                txt.Add("Map Version: " + Version[C]);
+				txt.Add("Folder: " + Folder[C]);
+				txt.Add("");
+			}
+			String[] output = (string[])txt.ToArray(typeof(string));
+			File.WriteAllLines(dest + "\\" + "Songs.txt", output);
+
+			txtbox.AppendText("\n");
+			txtbox.AppendText("\n");
+			txtbox.AppendText("Finished! Listed " + exported + " songs in Songs.txt");
+
+		}
     }
 }

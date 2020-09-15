@@ -8,13 +8,14 @@
         ResizeMode="CanMinimize"
         Title="Quest Song Exporter" Height="450" Width="510" Background="#FF282828" >
     <Grid>
-        <Button Click="Button_Click" Content="Choose Song Folder" HorizontalAlignment="Left" Margin="290,53.6,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
+        <Button Click="Button_Click" Content="Choose Song Folder" HorizontalAlignment="Left" Margin="290,29.6,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
         <TextBox IsReadOnly="True" x:Name="txtbox" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="275" Background="#FF494949" Foreground="#FFA6A6A6" BorderBrush="#FFD30000"/>
-        <Button Click="Button_Click_1" Content="Choose Destination Folder" HorizontalAlignment="Left" Margin="290,192.8,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
+        <Button Click="Button_Click_1" Content="Choose Destination Folder" HorizontalAlignment="Left" Margin="290,174.4,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
         <Button Click="Button_Click_2" Content="Start" HorizontalAlignment="Left" Margin="290,356.8,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
-        <TextBox IsReadOnly="True" x:Name="txtboxs" HorizontalAlignment="Left" Height="68.2" Margin="290,91.6,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
-        <TextBox IsReadOnly="True" x:Name="txtboxd" HorizontalAlignment="Left" Height="68.2" Margin="290,230.8,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
+        <TextBox IsReadOnly="True" x:Name="txtboxs" HorizontalAlignment="Left" Height="68.2" Margin="290,67.6,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
+        <TextBox IsReadOnly="True" x:Name="txtboxd" HorizontalAlignment="Left" Height="68.2" Margin="290,212.4,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
         <CheckBox x:Name="box" Content="Overwrite existing zips" HorizontalAlignment="Left" Margin="306.6,330.4,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
+        <CheckBox x:Name="index" Content="Make List of all songs (Beta)" HorizontalAlignment="Left" Margin="306.6,298.4,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
 
 
     </Grid>
