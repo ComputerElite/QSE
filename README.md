@@ -33,3 +33,4 @@ Both do the same.
 # To-Do
 - Adding Image to GUI (ETA when I get an Idea)
 - Checking all Info.dat Files types possible (ETA N/A)
+- Adding Song Indexer (ETA 15.069.2020)
