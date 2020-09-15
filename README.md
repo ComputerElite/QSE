@@ -23,9 +23,9 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - The C# version has a GUI.
 - Java Version requiers Java. The C# version should work on every Windows PC.
 - C# Version is about 24% faster.
-- The C# version is only for windows. Java could work with Mac and Linux. But I'm not able to test it.
+- The C# version is only for Windows. Java could work with Mac and Linux. But I'm not able to test it.
 
-Both should work the same.
+Both do the same.
 
 # Known Issues
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly. (I'm working on that; Could be fixed the c# version)
