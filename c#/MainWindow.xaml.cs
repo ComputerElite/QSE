@@ -191,6 +191,14 @@ namespace Quest_Song_Exporter
 										overwritten++;
 									}
 								}
+								else
+								{
+									bool v = File.Exists(dest + "\\" + Name + ".zip");
+									if (v)
+									{
+										txtbox.AppendText("\nthis Song already exists");
+									}
+								}
 
 								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
@@ -272,7 +280,14 @@ namespace Quest_Song_Exporter
 										txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
 										overwritten++;
 									}
-                                }
+                                } else
+                                {
+									bool v = File.Exists(dest + "\\" + Name + ".zip");
+									if (v)
+									{
+										txtbox.AppendText("\nthis Song already exists");
+									}
+								}
 
 								zip(directories[i], dest + "\\" + Name + ".zip");
 								exported++;
@@ -299,7 +314,9 @@ namespace Quest_Song_Exporter
 			txtbox.AppendText("\n");
 			txtbox.AppendText("\n");
 			txtbox.AppendText("\nFinished! Exported " + exported + " Songs");
-			txtbox.AppendText("\nOverwritten " + overwritten + " existing zips");
+			if((bool)box.IsChecked) {
+				txtbox.AppendText("\nOverwritten " + overwritten + " existing zips");
+			}
 			txtbox.ScrollToEnd();
 		}
 
@@ -331,6 +348,7 @@ namespace Quest_Song_Exporter
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+			txtbox.Text = "Output:";
 			if(dest == null)
             {
 				dest = path;

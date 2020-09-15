@@ -15,6 +15,7 @@ public class Input {
 	public static void main(String[] args) throws IOException {
 		ArrayList<String> list = new ArrayList<>();
 		ArrayList<String> content = new ArrayList<>();
+		int overwritten = 0;
 		int count = 0;
 		int exported = 0;
 		String Name = "";
@@ -23,6 +24,12 @@ public class Input {
 		String Source = Scanner.nextLine();
 		System.out.print("Destination Folder: ");
 		String dest = Scanner.nextLine();
+		System.out.print("Do you want to overwrite existing zips? (y/n): ");
+		String write = Scanner.nextLine();
+		boolean overwrite = true;
+		if(write.equalsIgnoreCase("n")) {
+			overwrite = false;
+		}
 		if(dest.equalsIgnoreCase("")) {
 			dest = Source;
 		}
@@ -109,8 +116,26 @@ public class Input {
 							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
-							ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
-							exported++;
+							
+							boolean exists = false;
+							if(!overwrite) {
+								File zip = new File(dest+File.separator+Name+".zip");
+								if(zip.exists()) {
+									exists = true;
+									System.out.println("This Song already exists");
+								}
+							} else {
+								File zip = new File(dest+File.separator+Name+".zip");
+								if(zip.exists()) {
+									overwritten++;
+									System.out.println("Overwritten this Song");
+								}
+							}
+							
+							if(!exists) {
+								ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
+								exported++;
+							}
 							Name = "";
 							src = new File("");
 							
@@ -160,8 +185,26 @@ public class Input {
 							System.out.println("Folder name: "+directories[i]);
 							File sour = new File(Source);
 							File src = new File(sour+File.separator+directories[i]+File.separator);
-							ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
-							exported++;
+							
+							boolean exists = false;
+							if(!overwrite) {
+								File zip = new File(dest+File.separator+Name+".zip");
+								if(zip.exists()) {
+									exists = true;
+									System.out.println("This Song already exists");
+								}
+							} else {
+								File zip = new File(dest+File.separator+Name+".zip");
+								if(zip.exists()) {
+									overwritten++;
+									System.out.println("Overwritten this Song");
+								}
+							}
+							
+							if(!exists) {
+								ZipIt.zipDirectory(src, dest+File.separator+Name+".zip");
+								exported++;
+							}
 							Name = "";
 							src = new File("");
 							
@@ -183,6 +226,9 @@ public class Input {
 		System.out.println("");
 		System.out.println("");
 		System.out.println("Finished! Exported "+exported+" Songs");
+		if(overwrite) {
+			System.out.println("Overwritten "+overwritten+" existing zips");
+		}
 	}
 
 }
