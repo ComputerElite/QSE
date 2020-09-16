@@ -30,7 +30,7 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly. (I'm working on that; Could be fixed in the c# version)
 
 # To-Do
-- Adding Image to GUI (ETA when I get an Idea)
+- Adding Image to GUI (ETA until end of month)
 - Checking all Info.dat Files types possible (ETA N/A)
 
 - (Updating Java Version) (ETA Maybe never)
