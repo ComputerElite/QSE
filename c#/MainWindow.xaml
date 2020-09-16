@@ -15,7 +15,7 @@
         <TextBox IsReadOnly="True" x:Name="txtboxs" HorizontalAlignment="Left" Height="68.2" Margin="290,67.6,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
         <TextBox IsReadOnly="True" x:Name="txtboxd" HorizontalAlignment="Left" Height="68.2" Margin="290,212.4,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
         <CheckBox x:Name="box" Content="Overwrite existing zips" HorizontalAlignment="Left" Margin="306.6,330.4,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
-        <CheckBox x:Name="index" Content="Make List of all songs (Beta)" HorizontalAlignment="Left" Margin="306.6,298.4,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
+        <CheckBox x:Name="index" Content="Make List of all songs" HorizontalAlignment="Left" Margin="306.6,298.4,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
 
 
     </Grid>
