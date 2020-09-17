@@ -22,6 +22,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Xml;
 
 namespace Quest_Song_Exporter
 {
@@ -32,6 +33,7 @@ namespace Quest_Song_Exporter
     {
         String path;
         String dest;
+        Boolean debug = false;
 
         public MainWindow()
         {
@@ -51,6 +53,15 @@ namespace Quest_Song_Exporter
             {
                 path = fd.FileName;
                 path = path.Replace("\\select.directory", "");
+                if(path.Contains("Debug"))
+                {
+                    debug = true;
+                    txtbox.Text = "Output (Debugging enabled):";
+                } else
+                {
+                    debug = false;
+                    txtbox.Text = "Output:";
+                }
                 if (!System.IO.Directory.Exists(path))
                 {
                     System.IO.Directory.CreateDirectory(path);
@@ -66,6 +77,7 @@ namespace Quest_Song_Exporter
 
             ArrayList list = new ArrayList();
             ArrayList content = new ArrayList();
+            ArrayList over = new ArrayList();
             int overwritten = 0;
             int exported = 0;
             String Name = "";
@@ -146,7 +158,7 @@ namespace Quest_Song_Exporter
                                     Name = Name.Substring(0, Name.Length - 1);
                                 }
 
-                                while (list.Contains(Name))
+                                while (list.Contains(Name.ToLower()))
                                 {
                                     Time++;
                                     if (Time > 1)
@@ -160,7 +172,7 @@ namespace Quest_Song_Exporter
                                     }
 
                                 }
-                                list.Add(Name);
+                                list.Add(Name.ToLower());
                                 txtbox.AppendText("\nSong Name: " + Name);
                                 txtbox.AppendText("\nFolder name: " + directories[i]);
                                 //File sour = new File(Source);
@@ -174,6 +186,13 @@ namespace Quest_Song_Exporter
                                     {
                                         File.Delete(dest + "\\" + Name + ".zip");
                                         txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
+                                        if(debug)
+                                        {
+                                            over.Add("\nSong Name: " + Name);
+                                            over.Add("\nFolder Name: " + directories[i]);
+                                            over.Add("\n");
+                                        }
+                                    
                                         overwritten++;
                                     }
                                 }
@@ -222,7 +241,7 @@ namespace Quest_Song_Exporter
                                     Name = Name.Substring(0, Name.Length - 1);
                                 }
 
-                                while (list.Contains(Name))
+                                while (list.Contains(Name.ToLower()))
                                 {
                                     Time++;
                                     if (Time > 1)
@@ -236,7 +255,7 @@ namespace Quest_Song_Exporter
                                     }
 
                                 }
-                                list.Add(Name);
+                                list.Add(Name.ToLower());
                                 txtbox.AppendText("\nSong Name: " + Name);
                                 txtbox.AppendText("\nFolder name: " + directories[i]);
                                 //File sour = new File(Source);
@@ -250,6 +269,12 @@ namespace Quest_Song_Exporter
                                     {
                                         File.Delete(dest + "\\" + Name + ".zip");
                                         txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
+                                        if (debug)
+                                        {
+                                            over.Add("\nSong Name: " + Name);
+                                            over.Add("\nFolder Name: " + directories[i]);
+                                            over.Add("\n");
+                                        }
                                         overwritten++;
                                     }
                                 }
@@ -291,6 +316,14 @@ namespace Quest_Song_Exporter
             if ((bool)box.IsChecked)
             {
                 txtbox.AppendText("\nOverwritten " + overwritten + " existing zips");
+                if(debug)
+                {
+                    txtbox.AppendText("\nOverwritten Files:\n");
+                    for (int cc = 0; cc < over.Count; cc++)
+                    {
+                        txtbox.AppendText(" " + over[cc]);
+                    }
+                }
             }
             txtbox.ScrollToEnd();
         }
