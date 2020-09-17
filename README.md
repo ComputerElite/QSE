@@ -31,6 +31,5 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 
 # To-Do
 - Adding Image to GUI (ETA until end of month)
-- Checking all Info.dat Files types possible (ETA N/A)
 
 - (Updating Java Version) (ETA Maybe never)
