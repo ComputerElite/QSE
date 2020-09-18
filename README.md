@@ -31,6 +31,6 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 
 # To-Do
 - Adding Image to GUI (ETA 20.09.2020)
-- Processing songs directly from Quest (ETA N/A)
+- Processing songs directly from Quest (Maybe not even possible)
 
 - (Updating Java Version) (ETA Maybe never)
