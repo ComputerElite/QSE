@@ -126,9 +126,9 @@ namespace Quest_Song_Exporter
                     while ((line = reader.ReadLine()) != null)
                     {
 
-                        if (line.Contains("songName"))
+                        if (line.Contains("_songName"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 Name = Strings(line, 7);
@@ -402,6 +402,8 @@ namespace Quest_Song_Exporter
             ArrayList Author = new ArrayList();
             ArrayList SubName = new ArrayList();
             ArrayList MAuthor = new ArrayList();
+            ArrayList requierments = new ArrayList();
+            ArrayList requiered = new ArrayList();
             int exported = 0;
             String Name = "";
             String Source = Path;
@@ -419,6 +421,7 @@ namespace Quest_Song_Exporter
             for (int i = 0; i < directories.Length; i++)
             {
                 custom = false;
+                requierments.Clear();
                 //Check if Folder is Valid Song
                 txtbox.AppendText("\n");
 
@@ -444,21 +447,24 @@ namespace Quest_Song_Exporter
                 {
                     StreamReader reader = new StreamReader(@dat);
                     String line;
+                    
                     while ((line = reader.ReadLine()) != null)
                     {
-
+                        
                         /////////CustomData
 
-                        if (line.Contains("custom"))
+                        if (line.Contains("_customData"))
                         {
                             custom = true;
                         }
 
+                        
+
                         /////////Song Name
 
-                        if (line.Contains("songName"))
+                        if (line.Contains("_songName"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 Name = Strings(line, 7);
@@ -501,11 +507,49 @@ namespace Quest_Song_Exporter
                             }
                         }
 
+                        /////////Requirements
+
+                        if (line.Contains("GameSaber"))
+                        {
+                            if(!requierments.Contains("GameSaber, "))
+                            {
+                                requierments.Add("GameSaber, ");
+                            }
+
+                        }
+
+                        if (line.Contains("Mapping Extensions"))
+                        {
+                            if (!requierments.Contains("Mapping Extensions, "))
+                            {
+                                requierments.Add("Mapping Extensions, ");
+                            }
+
+                        }
+
+                        if (line.Contains("Noodle Extensions"))
+                        {
+                            if (!requierments.Contains("Noodle Extensions, "))
+                            {
+                                requierments.Add("Noodle Extensions, ");
+                            }
+
+                        }
+
+                        if (line.Contains("Chroma"))
+                        {
+                            if (!requierments.Contains("Chroma, "))
+                            {
+                                requierments.Add("Chroma, ");
+                            }
+
+                        }
+
                         /////////Version
 
-                        if (line.Contains("version"))
+                        if (line.Contains("_version"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 V = Strings(line, 3);
@@ -536,9 +580,9 @@ namespace Quest_Song_Exporter
 
                         /////////Song Sub Name
 
-                        if (line.Contains("songSubName"))
+                        if (line.Contains("_songSubName"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 S = Strings(line, 11);
@@ -578,9 +622,9 @@ namespace Quest_Song_Exporter
 
                         /////////Song Author
 
-                        if (line.Contains("songAuthorName"))
+                        if (line.Contains("_songAuthorName"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 A = Strings(line, 11);
@@ -620,9 +664,9 @@ namespace Quest_Song_Exporter
 
                         /////////Map Author
 
-                        if (line.Contains("levelAuthor"))
+                        if (line.Contains("_levelAuthorName"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 M = Strings(line, 19);
@@ -662,9 +706,9 @@ namespace Quest_Song_Exporter
 
                         /////////BPM
 
-                        if (line.Contains("beatsPerMinute"))
+                        if (line.Contains("_beatsPerMinute"))
                         {
-                            if (line.Contains("version") && line.Contains("songName"))
+                            if (line.Contains("_version") && line.Contains("songName"))
                             {
                                 //BeatSage
                                 B = Strings(line, 22);
@@ -707,11 +751,28 @@ namespace Quest_Song_Exporter
                                 B = "";
                             }
                         }
+                        
 
                         Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                         txtbox.ScrollToEnd();
 
                     }
+                    String Content = "";
+                    
+                    for (int a = 0; a < requierments.Count; a++)
+                    {
+                        Content = Content + requierments[a];
+                    }
+                    if(Content.Equals(""))
+                    {
+                        Content = "N/A";
+                    }
+                    if(Content.EndsWith(", "))
+                    {
+                        Content = Content.Substring(0, Content.Count() - 2);
+                    }
+                    txtbox.AppendText("\nRequierments: " + Content);
+                    requiered.Add(Content);
                     reader.Close();
                 }
                 catch
@@ -738,6 +799,7 @@ namespace Quest_Song_Exporter
                 txt.Add("Song Author: " + Author[C]);
                 txt.Add("Map Author: " + MAuthor[C]);
                 txt.Add("Map Version: " + Version[C]);
+                txt.Add("Requiered mods: " + requiered[C]);
                 txt.Add("Folder: " + Folder[C]);
                 txt.Add("");
             }
