@@ -4,13 +4,13 @@ A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right n
 # How-to (Quest)
 ### C# version (GUI):
 
-Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC. After it has finished copying start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located. Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped. Optionally you can check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
+Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)". Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped. Optionally you can check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
 
 ### Java version (discontinued!): 
 
 Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\CustomSongs" to any empty folder on your PC. After it has finished copying start QSE.bat. It asks you to put in a Directory where your songs folders are. You have to put in the folder you just copied them. Then it askes you where you want to put the finished zips. Put there a Directory of your choice. It'll start zipping them right away. After it has finished it'll let you know how many Songs it (tried) zipped.
 
-# How-to (PC)
+# How-to (PC/Songs are already on PC)
 ### C# version (GUI):
 
 Start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped. Optionally you can check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
@@ -30,7 +30,5 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - Exported Songs Counter may be wrong due to reconizing the Song but don't zipping them correctly. (I'm working on that; Could be fixed in the c# version)
 
 # To-Do
-- Adding Image to GUI (ETA 20.09.2020)
-- Processing songs directly from Quest (Maybe not even possible)
 
 - (Updating Java Version) (ETA Maybe never)
