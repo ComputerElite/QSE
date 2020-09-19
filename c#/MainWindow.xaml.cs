@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.IO.Packaging;
@@ -41,18 +43,38 @@ namespace Quest_Song_Exporter
             txtbox.Text = "Output:";
             txtboxd.Text = "Please choose your destination folder.";
             txtboxs.Text = "Please choose your Song folder.";
+            
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Mini(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog fd = new SaveFileDialog();
-            fd.Filter = "Directory|*this.directory";
-            fd.FileName = "select";
-            if (fd.ShowDialog() == true)
+            WindowState = WindowState.Minimized;
+        }
+
+        private void Drag(object sender, RoutedEventArgs e)
+        {
+            bool mouseIsDown = System.Windows.Input.Mouse.LeftButton == MouseButtonState.Pressed;
+            if (mouseIsDown)
+            {
+                this.DragMove();
+            }
+            
+        }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+
+            private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog fd = new CommonOpenFileDialog();
+            fd.IsFolderPicker = true;
+            if (fd.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 path = fd.FileName;
-                path = path.Replace("\\select.directory", "");
                 if(path.Contains("Debug"))
                 {
                     debug = true;
@@ -68,7 +90,30 @@ namespace Quest_Song_Exporter
                 }
                 txtboxs.Text = path;
 
+            }
+        }
 
+        public void CopySongs(String Desktop)
+        {
+            ProcessStartInfo s = new ProcessStartInfo();
+            s.CreateNoWindow = false;
+            s.UseShellExecute = false;
+            s.FileName = "adb.exe";
+            s.WindowStyle = ProcessWindowStyle.Minimized;
+            s.Arguments = "pull /sdcard/BMBFData/CustomSongs/ " + Desktop;
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(s))
+                {
+                    exeProcess.WaitForExit();
+                }
+            }
+            catch
+            {
+                // Log error.
+                txtbox.AppendText("\nAn Error Occured");
             }
         }
 
@@ -83,7 +128,17 @@ namespace Quest_Song_Exporter
             String Name = "";
             String Source = Path;
 
-            string[] directories = Directory.GetDirectories(Path);
+            if((bool)auto.IsChecked)
+            {
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + desktop + "\\CustomSongs. Please be patient.");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                CopySongs(desktop);
+                Source = desktop + "\\CustomSongs";
+                dest = desktop + "\\CustomSongs";
+            }
+
+            string[] directories = Directory.GetDirectories(Source);
 
 
 
@@ -313,6 +368,10 @@ namespace Quest_Song_Exporter
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
             txtbox.AppendText("\nFinished! Exported " + exported + " Songs");
+            if ((bool)auto.IsChecked)
+            {
+                txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at your Desktop in a folder named CustomSongs.");
+            }
             if ((bool)box.IsChecked)
             {
                 txtbox.AppendText("\nOverwritten " + overwritten + " existing zips");
@@ -356,20 +415,20 @@ namespace Quest_Song_Exporter
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog fd = new SaveFileDialog();
-            fd.Filter = "Directory|*this.directory";
-            fd.FileName = "select";
-            if (fd.ShowDialog() == true)
+            CommonOpenFileDialog fd = new CommonOpenFileDialog();
+            fd.IsFolderPicker = true;
+            if (fd.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                dest = fd.FileName;
-                dest = dest.Replace("\\select.directory", "");
-                if (!System.IO.Directory.Exists(dest))
                 {
-                    System.IO.Directory.CreateDirectory(dest);
+                    dest = fd.FileName;
+                    dest = dest.Replace("\\select.directory", "");
+                    if (!System.IO.Directory.Exists(dest))
+                    {
+                        System.IO.Directory.CreateDirectory(dest);
+                    }
+                    txtboxd.Text = dest;
+
                 }
-                txtboxd.Text = dest;
-
-
             }
 
         }
@@ -414,7 +473,17 @@ namespace Quest_Song_Exporter
             String M = "";
             Boolean custom = false;
 
-            string[] directories = Directory.GetDirectories(Path);
+            if ((bool)auto.IsChecked)
+            {
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + desktop + "\\CustomSongs. Please be patient.");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                CopySongs(desktop);
+                Source = desktop + "\\CustomSongs";
+                dest = desktop + "\\CustomSongs";
+            }
+
+            string[] directories = Directory.GetDirectories(Source);
 
 
 
