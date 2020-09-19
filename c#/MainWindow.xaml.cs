@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.Collections;
+using System.Collections;   
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data.SqlClient;
@@ -36,13 +36,19 @@ namespace Quest_Song_Exporter
         String path;
         String dest;
         Boolean debug = false;
+        Boolean automode = false;
+        Boolean copied = false;
+        String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
+
 
         public MainWindow()
         {
             InitializeComponent();
-            txtbox.Text = "Output:";
+            exe = exe.Replace("\\Quest Song Exporter.exe", "");
+            txtbox.Text = "Output:\n" + exe;
             txtboxd.Text = "Please choose your destination folder.";
             txtboxs.Text = "Please choose your Song folder.";
+            
             
 
         }
@@ -50,6 +56,29 @@ namespace Quest_Song_Exporter
         private void Mini(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void Auto(object sender, RoutedEventArgs e)
+        {
+            if((bool)auto.IsChecked)
+            {
+                automode = true;
+                txtboxs.Text = "Oculus Quest";
+                txtboxs.Opacity = 0.6;
+                sr.Opacity = 0.6;
+                
+                dest = exe + "\\CustomSongs";
+                if (!Directory.Exists(dest))
+                {
+                    Directory.CreateDirectory(dest);
+                }
+            } else
+            {
+                automode = false;
+                txtboxs.Text = "Please choose your Song Folder";
+                txtboxs.Opacity = 0.9;
+                sr.Opacity = 0.9;
+            }
         }
 
         private void Drag(object sender, RoutedEventArgs e)
@@ -64,12 +93,19 @@ namespace Quest_Song_Exporter
 
         private void Close(object sender, RoutedEventArgs e)
         {
+            if(Directory.Exists(exe + "\\tmp")) {
+                Directory.Delete(exe + "\\tmp", true);
+            }
             this.Close();
         }
 
 
             private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if(automode)
+            {
+                return;
+            }
             CommonOpenFileDialog fd = new CommonOpenFileDialog();
             fd.IsFolderPicker = true;
             if (fd.ShowDialog() == CommonFileDialogResult.Ok)
@@ -95,12 +131,16 @@ namespace Quest_Song_Exporter
 
         public void CopySongs(String Desktop)
         {
+            if(copied)
+            {
+                return;
+            }
             ProcessStartInfo s = new ProcessStartInfo();
             s.CreateNoWindow = false;
             s.UseShellExecute = false;
             s.FileName = "adb.exe";
             s.WindowStyle = ProcessWindowStyle.Minimized;
-            s.Arguments = "pull /sdcard/BMBFData/CustomSongs/ " + Desktop;
+            s.Arguments = "pull /sdcard/BMBFData/CustomSongs/ \"" + Desktop + "\"";
             try
             {
                 // Start the process with the info we specified.
@@ -108,6 +148,7 @@ namespace Quest_Song_Exporter
                 using (Process exeProcess = Process.Start(s))
                 {
                     exeProcess.WaitForExit();
+                    copied = true;
                 }
             }
             catch
@@ -131,11 +172,11 @@ namespace Quest_Song_Exporter
             if((bool)auto.IsChecked)
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + desktop + "\\CustomSongs. Please be patient.");
+                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                CopySongs(desktop);
-                Source = desktop + "\\CustomSongs";
-                dest = desktop + "\\CustomSongs";
+                CopySongs(exe + "\\tmp");
+                Source = exe + "\\tmp";
+                
             }
 
             string[] directories = Directory.GetDirectories(Source);
@@ -368,9 +409,9 @@ namespace Quest_Song_Exporter
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
             txtbox.AppendText("\nFinished! Exported " + exported + " Songs");
-            if ((bool)auto.IsChecked)
+            if ((bool)auto.IsChecked && dest == exe + "\\CustomSongs")
             {
-                txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at your Desktop in a folder named CustomSongs.");
+                txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
             }
             if ((bool)box.IsChecked)
             {
@@ -476,11 +517,11 @@ namespace Quest_Song_Exporter
             if ((bool)auto.IsChecked)
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + desktop + "\\CustomSongs. Please be patient.");
+                txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                CopySongs(desktop);
-                Source = desktop + "\\CustomSongs";
-                dest = desktop + "\\CustomSongs";
+                CopySongs(exe + "\\tmp");
+                Source = exe + "\\tmp";
+
             }
 
             string[] directories = Directory.GetDirectories(Source);
@@ -878,7 +919,10 @@ namespace Quest_Song_Exporter
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
             txtbox.AppendText("Finished! Listed " + exported + " songs in Songs.txt");
-
+            if ((bool)auto.IsChecked && dest == exe + "\\CustomSongs")
+            {
+                txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
+            }
         }
     }
 }
