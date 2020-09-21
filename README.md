@@ -1,5 +1,5 @@
 # QSE (Quest Song exporter)
-A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right names. You can also make a List of all Songs you have.
+More than a Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right names.
 
 # How-to (Quest)
 ## C# version (GUI):
@@ -7,15 +7,19 @@ A Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right n
 Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)". Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 ### Make Song List
 Do everything as above and check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
+<br/>
+<br/>
 ### How to do Playlist Backups
 Enter your Quests IP and click "Backup Playlists". It'll save a file named "Playlists.json" in the folder you specified in "Choose Source Folder". 
 
-**Note**: It Does **Not save Songs. Only Playlist Configuration gets saved**. You can only store one Playlist at once (unless you copy it).
+**Note**: It Does **Not save Songs. Only Playlist Configuration gets saved**. You can only store one Playlist at once (unless you copy it).<br/><br/>
 ### How to restore Playlists
 Enter Your Quests IP and then choose the Folder where "Playlists.json" is saved (It'll default to the programs location if you don't specify anything). Then press Restore Playlists. 
 
 **Note**: No Songs get restored. Be sure that you have all Songs that you had when you made the Backup.
-
+<br/>
+<br/>
+<br/>
 
 ## Java version (discontinued!): 
 
