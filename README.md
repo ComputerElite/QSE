@@ -27,7 +27,7 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - Java Version requiers Java. The C# version should work on every Windows PC.
 
 # Known Issues
-- Program will crash when you hold the left mouse button on a textbox
+- N/A
 
 # To-Do
 
