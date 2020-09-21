@@ -47,6 +47,7 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 
 # Contributers
 - darkuni (helped me making the Playlist backuping and restoring possible. Check out his nice program: [Playlist Editor Pro](https://beatsaberquest.com/bmbf/my-tools/playlist-editor-pro/#:~:text=Playlist%20Editor%20Pro%20is%20a,details%20and%20download%20it%20here.))
+- rui2015 (helped testing the tool)
 
 
 # Known Issues
