@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;   
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.IO.Packaging;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -33,11 +35,13 @@ namespace Quest_Song_Exporter
     /// </summary>
     public partial class MainWindow : Window
     {
+        String IP = "";
         String path;
         String dest;
         Boolean debug = false;
         Boolean automode = false;
         Boolean copied = false;
+        Boolean draggable = true;
         String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
 
 
@@ -45,7 +49,11 @@ namespace Quest_Song_Exporter
         {
             InitializeComponent();
             exe = exe.Replace("\\Quest Song Exporter.exe", "");
-            txtbox.Text = "Output:\n" + exe;
+            txtbox.Text = "Output:\n";
+            if(debug)
+            {
+                txtbox.AppendText(exe);
+            }
             txtboxd.Text = "Please choose your destination folder.";
             txtboxs.Text = "Please choose your Song folder.";
             
@@ -57,6 +65,149 @@ namespace Quest_Song_Exporter
         {
             WindowState = WindowState.Minimized;
         }
+
+
+        private void Backup(object sender, RoutedEventArgs e)
+        {
+            txtbox.Text = "Output:";
+            getQuestIP();
+            if (dest == null)
+            {
+                dest = exe + "\\CustomSongs";
+                if(!Directory.Exists(exe + "\\CustomSongs"))
+                {
+                    Directory.CreateDirectory(exe + "\\CustomSongs");
+                }
+            }
+
+            txtbox.AppendText("\n\nBackuping Playlist");
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+
+
+            if (!Directory.Exists(exe + "\\tmp"))
+            {
+                Directory.CreateDirectory(exe + "\\tmp");
+            }
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\Config.json");
+            }
+            
+
+            String Config = exe + "\\tmp\\config.json";
+
+
+
+            StreamReader reader = new StreamReader(@Config);
+                String line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    int Index = line.IndexOf("\"Mods\":[{", 0, line.Length);
+                    String Playlists = line.Substring(0, Index);
+                    File.WriteAllText(dest + "\\Playlists.json", Playlists);
+                }
+            txtbox.AppendText("\n\nBackuped Playlists to " + dest + "\\Playlists.json");
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+
+        }
+
+        public void postChanges(String Config)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.QueryString.Add("foo", "foo");
+                client.UploadFile("http://" + IP + ":50000/host/beatsaber/config", "PUT", Config);
+                client.UploadValues("http://" + IP + ":50000/host/beatsaber/commitconfig", "POST", client.QueryString);
+            }
+        }
+
+
+        private void Restore(object sender, RoutedEventArgs e)
+        {
+            getQuestIP();
+            txtbox.Text = "Output:";
+
+            if (dest == null)
+            {
+                dest = path;
+            }
+
+            txtbox.AppendText("\n\nRestoring Playlist from " + dest + "\\Playlists.json");
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+
+
+            if (!Directory.Exists(exe + "\\tmp"))
+            {
+                Directory.CreateDirectory(exe + "\\tmp");
+            }
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\OConfig.json");
+            }
+
+            String Config = exe + "\\tmp\\OConfig.json";
+
+            String Playlists;
+
+            if (Directory.Exists(path))
+            {
+                Playlists = path + "\\Playlists.json";
+            } else
+            {
+                Playlists = exe + "\\CustomSongs\\Playlists.json";
+            }
+            
+
+            
+                StreamReader reader = new StreamReader(@Config);
+                String line;
+                String CContent = "";
+                int Index = 0;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    Index = line.IndexOf("\"Mods\":", 0, line.Length);
+                    CContent = line.Substring(Index, line.Length - Index);
+
+
+                    //9
+                }
+
+                StreamReader Preader = new StreamReader(@Playlists);
+                String Pline;
+                String Content = "";
+                while ((Pline = Preader.ReadLine()) != null)
+                {
+                    Content = Pline;
+                }
+
+            String finished = Content + CContent;
+
+            JObject o = JObject.Parse(finished);
+            o.Property("SyncConfig").Remove();
+            o.Property("IsCommitted").Remove();
+            o.Property("BeatSaberVersion").Remove();
+
+            JProperty lrs = o.Property("Config");
+            o.Add(lrs.Value.Children<JProperty>());
+            lrs.Remove();
+
+            String FConfig = o.ToString();
+            File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
+
+            postChanges(exe + "\\tmp\\config.json");
+            txtbox.AppendText("\n\nRestored old Playlists.");
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+
+        }
+
+        private void ClearText(object sender, RoutedEventArgs e)
+        {
+            Quest.Text = "";
+        }
+
 
         private void Auto(object sender, RoutedEventArgs e)
         {
@@ -84,11 +235,27 @@ namespace Quest_Song_Exporter
         private void Drag(object sender, RoutedEventArgs e)
         {
             bool mouseIsDown = System.Windows.Input.Mouse.LeftButton == MouseButtonState.Pressed;
+            
+            
             if (mouseIsDown)
             {
-                this.DragMove();
+                if(draggable)
+                {
+                    this.DragMove();
+                }
+                
             }
             
+        }
+
+        public void noDrag(object sender, MouseEventArgs e)
+        {
+            draggable = false;
+        }
+
+        public void doDrag(object sender, MouseEventArgs e)
+        {
+            draggable = true;
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -127,6 +294,12 @@ namespace Quest_Song_Exporter
                 txtboxs.Text = path;
 
             }
+        }
+
+        public void getQuestIP()
+        {
+            IP = Quest.Text;
+            return;
         }
 
         public void CopySongs(String Desktop)
@@ -171,7 +344,6 @@ namespace Quest_Song_Exporter
 
             if((bool)auto.IsChecked)
             {
-                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 CopySongs(exe + "\\tmp");
@@ -516,7 +688,6 @@ namespace Quest_Song_Exporter
 
             if ((bool)auto.IsChecked)
             {
-                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 CopySongs(exe + "\\tmp");
@@ -923,6 +1094,11 @@ namespace Quest_Song_Exporter
             {
                 txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
             }
+        }
+
+        private void Button_MouseEnter(object sender, MouseEventArgs e)
+        {
+
         }
     }
 }
