@@ -8,9 +8,13 @@ Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Q
 ### Make Song List
 Do everything as above and check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
 ### How to do Playlist Backups
-Enter your Quests IP and click "Backup Playlists". It'll save a file named "Playlists.json" in the folder you specified in "Choose Source Folder". Notes: It Does NOT SAVE SONGS. ONLY PLAYLIST CONFIGURATION gets saved. You can only store one Playlist at once (unless you copy it).
+Enter your Quests IP and click "Backup Playlists". It'll save a file named "Playlists.json" in the folder you specified in "Choose Source Folder". 
+
+**Note**: It Does **Not save Songs. Only Playlist Configuration gets saved**. You can only store one Playlist at once (unless you copy it).
 ### How to restore Playlists
-Enter Your Quests IP and then choose the Folder where "Playlists.json" is saved (It'll default to the programs location if you don't specify anything). Then press Restore Playlists. Note: No Songs get restored. Be sure that you have all Songs that you had when you made the Backup.
+Enter Your Quests IP and then choose the Folder where "Playlists.json" is saved (It'll default to the programs location if you don't specify anything). Then press Restore Playlists. 
+
+**Note**: No Songs get restored. Be sure that you have all Songs that you had when you made the Backup.
 
 
 ## Java version (discontinued!): 
@@ -34,6 +38,9 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - C# Version is about 24% faster.
 - The C# version is only for Windows. Java could work with Mac and Linux. But I'm not able to test it.
 - Java Version requiers Java. The C# version should work on every Windows PC.
+
+# Contributers
+- darkuni (helped me making the Playlist backuping possible. Check his nice programm out: [Playlist Editor Pro](https://beatsaberquest.com/bmbf/my-tools/playlist-editor-pro/#:~:text=Playlist%20Editor%20Pro%20is%20a,details%20and%20download%20it%20here.))
 
 # Known Issues
 - N/A
