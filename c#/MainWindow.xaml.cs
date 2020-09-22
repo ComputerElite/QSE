@@ -35,6 +35,11 @@ namespace Quest_Song_Exporter
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        int MajorV = 3;
+        int MinorV = 7;
+        int PatchV = 0;
+
         String IP = "";
         String path;
         String dest;
@@ -48,6 +53,7 @@ namespace Quest_Song_Exporter
         public MainWindow()
         {
             InitializeComponent();
+            UpdateB.Visibility = Visibility.Hidden;
             exe = exe.Replace("\\Quest Song Exporter.exe", "");
             txtbox.Text = "Output:\n";
             if(debug)
@@ -56,9 +62,93 @@ namespace Quest_Song_Exporter
             }
             txtboxd.Text = "Please choose your destination folder.";
             txtboxs.Text = "Please choose your Song folder.";
-            
+            if(!Directory.Exists(exe + "\\tmp"))
+            {
+                Directory.CreateDirectory(exe + "\\tmp");
+            }
+            if(File.Exists(exe + "\\QSE_Update.exe"))
+            {
+                File.Delete(exe + "\\QSE_Update.exe");
+            }
+            Update();
             
 
+        }
+
+        public void Update()
+        {
+            try
+            {
+                //Download Update.txt
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
+                }
+                StreamReader VReader = new StreamReader(exe + "\\tmp\\Update.txt");
+
+                String line;
+                int l = 0;
+
+                int MajorU = 0;
+                int MinorU = 0;
+                int PatchU = 0;
+                while ((line = VReader.ReadLine()) != null)
+                {
+                    if (l == 0)
+                    {
+                        String URL = line;
+                    }
+                    if(l == 1)
+                    {
+                        MajorU = Convert.ToInt32(line);
+                    }
+                    if(l == 2)
+                    {
+                        MinorU = Convert.ToInt32(line);
+                    }
+                    if(l == 3)
+                    {
+                        PatchU = Convert.ToInt32(line);
+                    }
+                    l++;
+                }
+
+                if(MajorU > MajorV || MinorU > MinorV || PatchU > PatchV)
+                {
+                    UpdateB.Visibility = Visibility.Visible;
+                }
+
+            } catch
+            {
+
+            }
+        }
+
+        private void Start_Update(object sender, RoutedEventArgs e)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile("https://github.com/ComputerElite/QSE/raw/master/QSE_Update.exe", exe + "\\QSE_Update.exe");
+            }
+            //Process.Start(exe + "\\QSE_Update.exe");
+            ProcessStartInfo s = new ProcessStartInfo();
+            s.CreateNoWindow = false;
+            s.UseShellExecute = false;
+            s.FileName = exe + "\\QSE_Update.exe";
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(s))
+                {
+                }
+                this.Close();
+            }
+            catch
+            {
+                // Log error.
+                txtbox.AppendText("\nAn Error Occured");
+            }
         }
 
         private void Mini(object sender, RoutedEventArgs e)
@@ -69,37 +159,39 @@ namespace Quest_Song_Exporter
 
         private void Backup(object sender, RoutedEventArgs e)
         {
-            txtbox.Text = "Output:";
-            getQuestIP();
-            if (dest == null)
+            try
             {
-                dest = exe + "\\CustomSongs";
-                if(!Directory.Exists(exe + "\\CustomSongs"))
+                txtbox.Text = "Output:";
+                getQuestIP();
+                if (dest == null)
                 {
-                    Directory.CreateDirectory(exe + "\\CustomSongs");
+                    dest = exe + "\\CustomSongs";
+                    if (!Directory.Exists(exe + "\\CustomSongs"))
+                    {
+                        Directory.CreateDirectory(exe + "\\CustomSongs");
+                    }
                 }
-            }
 
-            txtbox.AppendText("\n\nBackuping Playlist");
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-
-
-
-            if (!Directory.Exists(exe + "\\tmp"))
-            {
-                Directory.CreateDirectory(exe + "\\tmp");
-            }
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\Config.json");
-            }
-            
-
-            String Config = exe + "\\tmp\\config.json";
+                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\Playlists.json");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
 
-            StreamReader reader = new StreamReader(@Config);
+                if (!Directory.Exists(exe + "\\tmp"))
+                {
+                    Directory.CreateDirectory(exe + "\\tmp");
+                }
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\Config.json");
+                }
+
+
+                String Config = exe + "\\tmp\\config.json";
+
+
+
+                StreamReader reader = new StreamReader(@Config);
                 String line;
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -107,9 +199,13 @@ namespace Quest_Song_Exporter
                     String Playlists = line.Substring(0, Index);
                     File.WriteAllText(dest + "\\Playlists.json", Playlists);
                 }
-            txtbox.AppendText("\n\nBackuped Playlists to " + dest + "\\Playlists.json");
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-
+                txtbox.AppendText("\n\nBacked up Playlists to " + dest + "\\Playlists.json");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+            } catch
+            {
+                txtbox.AppendText("\n\n\nAn error occured. Check following:");
+                txtbox.AppendText("\n\n- You put in the Quests IP right.");
+            }
 
         }
 
@@ -126,42 +222,47 @@ namespace Quest_Song_Exporter
 
         private void Restore(object sender, RoutedEventArgs e)
         {
-            getQuestIP();
-            txtbox.Text = "Output:";
-
-            if (dest == null)
+            try
             {
-                dest = path;
-            }
-
-            txtbox.AppendText("\n\nRestoring Playlist from " + dest + "\\Playlists.json");
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
+                getQuestIP();
+                txtbox.Text = "Output:";
 
-            if (!Directory.Exists(exe + "\\tmp"))
-            {
-                Directory.CreateDirectory(exe + "\\tmp");
-            }
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\OConfig.json");
-            }
+                if (dest == null)
+                {
+                    dest = path;
+                }
 
-            String Config = exe + "\\tmp\\OConfig.json";
+                txtbox.AppendText("\n\nRestoring Playlist from " + dest + "\\Playlists.json");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
-            String Playlists;
 
-            if (Directory.Exists(path))
-            {
-                Playlists = path + "\\Playlists.json";
-            } else
-            {
-                Playlists = exe + "\\CustomSongs\\Playlists.json";
-            }
-            
 
-            
+                if (!Directory.Exists(exe + "\\tmp"))
+                {
+                    Directory.CreateDirectory(exe + "\\tmp");
+                }
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\OConfig.json");
+                }
+
+                String Config = exe + "\\tmp\\OConfig.json";
+
+                String Playlists;
+
+                if (Directory.Exists(path))
+                {
+                    Playlists = path + "\\Playlists.json";
+                }
+                else
+                {
+                    Playlists = exe + "\\CustomSongs\\Playlists.json";
+                }
+
+
+
                 StreamReader reader = new StreamReader(@Config);
                 String line;
                 String CContent = "";
@@ -183,24 +284,30 @@ namespace Quest_Song_Exporter
                     Content = Pline;
                 }
 
-            String finished = Content + CContent;
+                String finished = Content + CContent;
 
-            JObject o = JObject.Parse(finished);
-            o.Property("SyncConfig").Remove();
-            o.Property("IsCommitted").Remove();
-            o.Property("BeatSaberVersion").Remove();
+                JObject o = JObject.Parse(finished);
+                o.Property("SyncConfig").Remove();
+                o.Property("IsCommitted").Remove();
+                o.Property("BeatSaberVersion").Remove();
 
-            JProperty lrs = o.Property("Config");
-            o.Add(lrs.Value.Children<JProperty>());
-            lrs.Remove();
+                JProperty lrs = o.Property("Config");
+                o.Add(lrs.Value.Children<JProperty>());
+                lrs.Remove();
 
-            String FConfig = o.ToString();
-            File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
+                String FConfig = o.ToString();
+                File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
 
-            postChanges(exe + "\\tmp\\config.json");
-            txtbox.AppendText("\n\nRestored old Playlists.");
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-
+                postChanges(exe + "\\tmp\\config.json");
+                txtbox.AppendText("\n\nRestored old Playlists.");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+            } catch
+            {
+                txtbox.AppendText("\n\n\nAn error occured. Check following:");
+                txtbox.AppendText("\n\n- Your Quest is on and BMBF opened");
+                txtbox.AppendText("\n\n- You put in the Quests IP right.");
+                txtbox.AppendText("\n\n- You've choosen the right Source path");
+            }
         }
 
         private void ClearText(object sender, RoutedEventArgs e)
