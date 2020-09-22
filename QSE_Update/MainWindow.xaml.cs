@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -101,6 +102,22 @@ namespace QSE_Update
             ZipFile.ExtractToDirectory(exe + "\\tmp\\QSE_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip", exe);
             txtbox.AppendText("\nFinished Updating");
             File.Delete(exe + "\\tmp\\QSE_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip");
+            ProcessStartInfo s = new ProcessStartInfo();
+            s.CreateNoWindow = false;
+            s.UseShellExecute = false;
+            s.FileName = exe + "\\Quest Song Exporter.exe";
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(s))
+                {
+                }
+                this.Close();
+            } catch
+            {
+
+            }
         }
     }
 }
