@@ -1,4 +1,4 @@
 https://github.com/ComputerElite/QSE/releases/download/3.7/QSE.3.7.zip
 3
 7
-0
+1
