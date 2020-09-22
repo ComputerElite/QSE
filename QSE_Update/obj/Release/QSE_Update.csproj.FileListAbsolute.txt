@@ -1,0 +1,14 @@
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\bin\Release\QSE_Update.exe.config
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\bin\Release\QSE_Update.exe
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\bin\Release\QSE_Update.pdb
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\MainWindow.g.cs
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\App.g.cs
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update_MarkupCompile.cache
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update_MarkupCompile.lref
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\MainWindow.baml
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.g.resources
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.Properties.Resources.resources
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.csproj.GenerateResource.cache
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.csproj.CoreCompileInputs.cache
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.exe
+C:\Users\ComputerElite\source\repos\QSE_Update\QSE_Update\obj\Release\QSE_Update.pdb
