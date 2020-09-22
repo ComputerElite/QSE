@@ -54,7 +54,4 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - N/A
 
 # To-Do
-- Add automatic update (ETA 23.09.2020)
-- Fixing translation issues (ETA 23.09.2020)
-- Adding try catch for playlist backuping (ETA 23.09.2020)
 - Add native support for multiple playlists (ETA N/A)
