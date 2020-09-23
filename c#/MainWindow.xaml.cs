@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 7;
-        int PatchV = 0;
+        int PatchV = 1;
 
         String IP = "";
         String path;
@@ -786,7 +786,7 @@ namespace Quest_Song_Exporter
             {
                 if((bool)!auto.IsChecked)
                 {
-                    txtbox.AppendText("\n\nChoose a Source Path!");
+                    txtbox.AppendText("\n\nChoose a Source folder!");
                     return;
                 }
             }
