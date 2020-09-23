@@ -115,6 +115,7 @@ namespace Quest_Song_Exporter
 
                 if(MajorU > MajorV || MinorU > MinorV || PatchU > PatchV)
                 {
+                    //Newer Version available
                     UpdateB.Visibility = Visibility.Visible;
                 }
 
@@ -137,8 +138,6 @@ namespace Quest_Song_Exporter
             s.FileName = exe + "\\QSE_Update.exe";
             try
             {
-                // Start the process with the info we specified.
-                // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(s))
                 {
                 }
@@ -411,7 +410,8 @@ namespace Quest_Song_Exporter
 
         public void CopySongs(String Desktop)
         {
-            if(copied)
+            String User = System.Environment.GetEnvironmentVariable("USERPROFILE");
+            if (copied)
             {
                 return;
             }
@@ -433,8 +433,34 @@ namespace Quest_Song_Exporter
             }
             catch
             {
-                // Log error.
-                txtbox.AppendText("\nAn Error Occured");
+                
+                if (copied)
+                {
+                    return;
+                }
+                ProcessStartInfo se = new ProcessStartInfo();
+                se.CreateNoWindow = false;
+                se.UseShellExecute = false;
+                se.FileName = User + "\\AppData\\Roaming\\SideQuest\\platform-tools\\adb.exe";
+                se.WindowStyle = ProcessWindowStyle.Minimized;
+                se.Arguments = "pull /sdcard/BMBFData/CustomSongs/ \"" + Desktop + "\"";
+                try
+                {
+                    // Start the process with the info we specified.
+                    // Call WaitForExit and then the using statement will close.
+                    using (Process exeProcess = Process.Start(s))
+                    {
+                        exeProcess.WaitForExit();
+                        copied = true;
+                    }
+                } catch
+                {
+                    // Log error.
+                    txtbox.AppendText("\n\n\nAn Error Occured. Check following");
+                    txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
+                    txtbox.AppendText("\n\n- You have adb installed.");
+                }
+                    
             }
         }
 
@@ -756,6 +782,14 @@ namespace Quest_Song_Exporter
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             txtbox.Text = "Output:";
+            if (!Directory.Exists(path))
+            {
+                if((bool)!auto.IsChecked)
+                {
+                    txtbox.AppendText("\n\nChoose a Source Path!");
+                    return;
+                }
+            }
             if (dest == null)
             {
                 dest = path;
