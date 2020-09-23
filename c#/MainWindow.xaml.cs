@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 7;
-        int PatchV = 1;
+        int PatchV = 2;
 
         String IP = "";
         String path;
@@ -47,6 +47,7 @@ namespace Quest_Song_Exporter
         Boolean automode = false;
         Boolean copied = false;
         Boolean draggable = true;
+        Boolean Running = false;
         String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
 
 
@@ -119,6 +120,25 @@ namespace Quest_Song_Exporter
                     UpdateB.Visibility = Visibility.Visible;
                 }
 
+                String MajorVS = Convert.ToString(MajorV);
+                String MinorVS = Convert.ToString(MinorV);
+                String PatchVS = Convert.ToString(PatchV);
+                String MajorUS = Convert.ToString(MajorU);
+                String MinorUS = Convert.ToString(MinorU);
+                String PatchUS = Convert.ToString(PatchU);
+
+                String VersionVS = MajorVS + MinorVS + PatchVS;
+                int VersionV = Convert.ToInt32(VersionVS);
+                String VersionUS = MajorUS + MinorUS + PatchUS + " ";
+                int VersionU = Convert.ToInt32(VersionUS);
+                if (VersionV > VersionU)
+                {
+                    //Newer Version that hasn't been released yet
+                    txtbox.AppendText("\n\nLooks like you have a preview Version. Downgrade now from " + MajorV + "." + MinorV + "." + PatchV + " to " + MajorU + "." + MinorU + "." + PatchU + " xD");
+                    UpdateB.Visibility = Visibility.Visible;
+                    UpdateB.Content = "Downgrade Now xD";
+                }
+
             } catch
             {
 
@@ -158,6 +178,11 @@ namespace Quest_Song_Exporter
 
         private void Backup(object sender, RoutedEventArgs e)
         {
+            if (Running)
+            {
+                return;
+            }
+            Running = true;
             try
             {
                 txtbox.Text = "Output:";
@@ -205,6 +230,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\n\nAn error occured. Check following:");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
             }
+            Running = false;
 
         }
 
@@ -221,6 +247,11 @@ namespace Quest_Song_Exporter
 
         private void Restore(object sender, RoutedEventArgs e)
         {
+            if (Running)
+            {
+                return;
+            }
+            Running = true;
             try
             {
 
@@ -307,6 +338,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
                 txtbox.AppendText("\n\n- You've choosen the right Source path");
             }
+            Running = false;
         }
 
         private void ClearText(object sender, RoutedEventArgs e)
@@ -376,6 +408,10 @@ namespace Quest_Song_Exporter
             private void Button_Click(object sender, RoutedEventArgs e)
         {
             if(automode)
+            {
+                return;
+            }
+            if(Running)
             {
                 return;
             }
@@ -474,13 +510,20 @@ namespace Quest_Song_Exporter
             int exported = 0;
             String Name = "";
             String Source = Path;
+            Running = true;
 
             if((bool)auto.IsChecked)
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 CopySongs(exe + "\\tmp");
-                Source = exe + "\\tmp";
+                if (Directory.Exists(exe + "\\tmp\\CustomSongs"))
+                {
+                    Source = exe + "\\tmp\\CustomSongs";
+                } else
+                {
+                    Source = exe + "\\tmp";
+                }
                 
             }
 
@@ -731,6 +774,7 @@ namespace Quest_Song_Exporter
                 }
             }
             txtbox.ScrollToEnd();
+            Running = false;
         }
 
         public static void zip(String src, String Output)
@@ -761,6 +805,10 @@ namespace Quest_Song_Exporter
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            if (Running)
+            {
+                return;
+            }
             CommonOpenFileDialog fd = new CommonOpenFileDialog();
             fd.IsFolderPicker = true;
             if (fd.ShowDialog() == CommonFileDialogResult.Ok)
@@ -781,6 +829,10 @@ namespace Quest_Song_Exporter
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+            if (Running)
+            {
+                return;
+            }
             txtbox.Text = "Output:";
             if (!Directory.Exists(path))
             {
@@ -826,13 +878,21 @@ namespace Quest_Song_Exporter
             String S = "";
             String M = "";
             Boolean custom = false;
+            Running = true;
 
             if ((bool)auto.IsChecked)
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 CopySongs(exe + "\\tmp");
-                Source = exe + "\\tmp";
+                if (Directory.Exists(exe + "\\tmp\\CustomSongs"))
+                {
+                    Source = exe + "\\tmp\\CustomSongs";
+                }
+                else
+                {
+                    Source = exe + "\\tmp";
+                }
 
             }
 
@@ -1231,10 +1291,23 @@ namespace Quest_Song_Exporter
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
             txtbox.AppendText("Finished! Listed " + exported + " songs in Songs.txt");
+            if(debug)
+            {
+                txtbox.AppendText("\n\n");
+                txtbox.AppendText("\nNames: " + list.Count);
+                txtbox.AppendText("\nSongSubNames: " + SubName.Count);
+                txtbox.AppendText("\nBMPs: " + BPM.Count);
+                txtbox.AppendText("\nSong Authors: " + Author.Count);
+                txtbox.AppendText("\nMap Authors: " + MAuthor.Count);
+                txtbox.AppendText("\nRequiered Mods: " + requiered.Count);
+                txtbox.AppendText("\nMap Versions: " + Version.Count);
+                txtbox.AppendText("\nFolders: " + Folder.Count);
+            }
             if ((bool)auto.IsChecked && dest == exe + "\\CustomSongs")
             {
                 txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
             }
+            Running = false;
         }
 
         private void Button_MouseEnter(object sender, MouseEventArgs e)
