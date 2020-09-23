@@ -4,7 +4,7 @@ More than a Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to t
 # How-to (Quest)
 ## C# version (GUI):
 ### Save Songs
-Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)". Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
+Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)" ([adb](https://developer.android.com/studio/releases/platform-tools) required). Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 <br/>
 <br/>
 ### Make Song List
