@@ -54,5 +54,6 @@ Locate your Custom Songs Folder (probably at C:\Program Files (x86)\Steam\steama
 - N/A
 
 # To-Do
+- Add Sidequest adb detection (ETA 23.09.2020)
 - Add error causes and solving ideas (ETA 23.09.2020)
 - Add native support for multiple playlists (ETA N/A)
