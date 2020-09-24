@@ -38,7 +38,8 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 7;
-        int PatchV = 2;
+        int PatchV = 3;
+        Boolean Preview = true;
 
         String IP = "";
         String path;
@@ -67,13 +68,40 @@ namespace Quest_Song_Exporter
             {
                 Directory.CreateDirectory(exe + "\\tmp");
             }
-            if(File.Exists(exe + "\\QSE_Update.exe"))
+            if (!Directory.Exists(exe + "\\CustomSongs"))
+            {
+                Directory.CreateDirectory(exe + "\\CustomSongs");
+            }
+            if (File.Exists(exe + "\\QSE_Update.exe"))
             {
                 File.Delete(exe + "\\QSE_Update.exe");
             }
             Update();
             
+            Backups.SelectedIndex = 0;
+            getBackups(exe + "\\CustomSongs");
 
+
+        }
+
+        public void getBackups(String Path)
+        {
+            ArrayList Jsons = new ArrayList();
+            string[] Files = Directory.GetFiles(Path);
+            Backups.Items.Clear();
+            Backups.Items.Add("Backups");
+
+            for (int i = 0; i < Files.Length; i++)
+            {
+                if (Files[i].EndsWith(".json"))
+                {
+                    Jsons.Add(Files[i].Substring(Files[i].LastIndexOf("\\") + 1, Files[i].Length - 6 - Files[i].LastIndexOf("\\")));
+                }
+            }
+            for (int o = 0; o < Jsons.Count; o++)
+            {
+                Backups.Items.Add(Jsons[o]);
+            }
         }
 
         public void Update()
@@ -134,9 +162,14 @@ namespace Quest_Song_Exporter
                 if (VersionV > VersionU)
                 {
                     //Newer Version that hasn't been released yet
-                    txtbox.AppendText("\n\nLooks like you have a preview Version. Downgrade now from " + MajorV + "." + MinorV + "." + PatchV + " to " + MajorU + "." + MinorU + "." + PatchU + " xD");
+                    txtbox.AppendText("\n\nLooks like you have a preview version. Downgrade now from " + MajorV + "." + MinorV + "." + PatchV + " to " + MajorU + "." + MinorU + "." + PatchU + " xD");
                     UpdateB.Visibility = Visibility.Visible;
                     UpdateB.Content = "Downgrade Now xD";
+                }
+                if (VersionV == VersionU && Preview)
+                {
+                    txtbox.AppendText("\n\nLooks like you have a preview version. The release version has been released. Please Update now. ");
+                    UpdateB.Visibility = Visibility.Visible;
                 }
 
             } catch
@@ -196,7 +229,24 @@ namespace Quest_Song_Exporter
                     }
                 }
 
-                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\Playlists.json");
+                BName.Text = BName.Text.Replace("/", "");
+                BName.Text = BName.Text.Replace(":", "");
+                BName.Text = BName.Text.Replace("*", "");
+                BName.Text = BName.Text.Replace("?", "");
+                BName.Text = BName.Text.Replace("\"", "");
+                BName.Text = BName.Text.Replace("<", "");
+                BName.Text = BName.Text.Replace(">", "");
+                BName.Text = BName.Text.Replace("|", "");
+
+                for (int f = 0; f < BName.Text.Length; f++)
+                {
+                    if (BName.Text.Substring(f, 1).Equals("\\"))
+                    {
+                        BName.Text = BName.Text.Substring(0, f - 1) + BName.Text.Substring(f + 1, BName.Text.Length - f - 1);
+                    }
+                }
+
+                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\" + BName.Text + "json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -221,15 +271,16 @@ namespace Quest_Song_Exporter
                 {
                     int Index = line.IndexOf("\"Mods\":[{", 0, line.Length);
                     String Playlists = line.Substring(0, Index);
-                    File.WriteAllText(dest + "\\Playlists.json", Playlists);
+                    File.WriteAllText(exe + "\\CustomSongs\\" + BName.Text + ".json", Playlists);
                 }
-                txtbox.AppendText("\n\nBacked up Playlists to " + dest + "\\Playlists.json");
+                txtbox.AppendText("\n\nBacked up Playlists to " + dest + "\\" + BName.Text + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
                 txtbox.AppendText("\n\n\nAn error occured. Check following:");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
             }
+            getBackups(exe + "\\CustomSongs");
             Running = false;
 
         }
@@ -251,6 +302,10 @@ namespace Quest_Song_Exporter
             {
                 return;
             }
+            if(Backups.SelectedIndex == 0)
+            {
+                return;
+            }
             Running = true;
             try
             {
@@ -259,12 +314,13 @@ namespace Quest_Song_Exporter
                 getQuestIP();
                 txtbox.Text = "Output:";
 
+                String Playlists;
                 if (dest == null)
                 {
                     dest = path;
                 }
 
-                txtbox.AppendText("\n\nRestoring Playlist from " + dest + "\\Playlists.json");
+                txtbox.AppendText("\n\nRestoring Playlist from " + exe + "\\CustomSongs\\" + Backups.SelectedValue + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -280,18 +336,9 @@ namespace Quest_Song_Exporter
 
                 String Config = exe + "\\tmp\\OConfig.json";
 
-                String Playlists;
+                Playlists = exe + "\\CustomSongs\\" + Backups.SelectedValue + ".json";
 
-                if (Directory.Exists(path))
-                {
-                    Playlists = path + "\\Playlists.json";
-                }
-                else
-                {
-                    Playlists = exe + "\\CustomSongs\\Playlists.json";
-                }
-
-
+                txtbox.AppendText("\n\n" + Playlists);
 
                 StreamReader reader = new StreamReader(@Config);
                 String line;
@@ -344,6 +391,11 @@ namespace Quest_Song_Exporter
         private void ClearText(object sender, RoutedEventArgs e)
         {
             Quest.Text = "";
+        }
+
+        private void ClearTextN(object sender, RoutedEventArgs e)
+        {
+            BName.Text = "";
         }
 
 
