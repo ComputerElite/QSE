@@ -39,7 +39,7 @@ namespace Quest_Song_Exporter
         int MajorV = 3;
         int MinorV = 7;
         int PatchV = 3;
-        Boolean Preview = true;
+        Boolean Preview = false;
 
         String IP = "";
         String path;
