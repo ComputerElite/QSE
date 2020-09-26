@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 7;
-        int PatchV = 3;
+        int PatchV = 4;
         Boolean Preview = false;
 
         String IP = "";
@@ -208,6 +208,22 @@ namespace Quest_Song_Exporter
             WindowState = WindowState.Minimized;
         }
 
+        private void QuestIPCheck(object sender, RoutedEventArgs e)
+        {
+            if(Quest.Text == "")
+            {
+                Quest.Text = "Quest IP";
+            }
+        }
+
+        private void BackupNameCheck(object sender, RoutedEventArgs e)
+        {
+            if(BName.Text == "")
+            {
+                BName.Text = "Backup Name";
+            }
+        }
+
 
         private void Backup(object sender, RoutedEventArgs e)
         {
@@ -279,6 +295,9 @@ namespace Quest_Song_Exporter
             {
                 txtbox.AppendText("\n\n\nAn error occured. Check following:");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
+                txtbox.AppendText("\n\n- You've choosen a Backup Name.");
+                txtbox.AppendText("\n\n- Your Quest is on.");
+
             }
             getBackups(exe + "\\CustomSongs");
             Running = false;
