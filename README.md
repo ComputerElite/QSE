@@ -1,5 +1,5 @@
 # QSE (Quest Song exporter)
-More than a Tool to zip Beat Saber songs from Quest (custom_level_SongHash) to the right names.
+It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration
 
 # How-to (Quest)
 ## C# version (GUI):
