@@ -37,8 +37,8 @@ namespace Quest_Song_Exporter
     {
 
         int MajorV = 3;
-        int MinorV = 7;
-        int PatchV = 4;
+        int MinorV = 8;
+        int PatchV = 0;
         Boolean Preview = false;
 
         String IP = "";
@@ -102,6 +102,7 @@ namespace Quest_Song_Exporter
             {
                 Backups.Items.Add(Jsons[o]);
             }
+            Backups.SelectedIndex = 0;
         }
 
         public void Update()
@@ -168,6 +169,7 @@ namespace Quest_Song_Exporter
                 }
                 if (VersionV == VersionU && Preview)
                 {
+                    //User has Preview Version but a release Version has been released
                     txtbox.AppendText("\n\nLooks like you have a preview version. The release version has been released. Please Update now. ");
                     UpdateB.Visibility = Visibility.Visible;
                 }
@@ -262,7 +264,7 @@ namespace Quest_Song_Exporter
                     }
                 }
 
-                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\" + BName.Text + "json");
+                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\" + BName.Text + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -367,9 +369,6 @@ namespace Quest_Song_Exporter
                 {
                     Index = line.IndexOf("\"Mods\":", 0, line.Length);
                     CContent = line.Substring(Index, line.Length - Index);
-
-
-                    //9
                 }
 
                 StreamReader Preader = new StreamReader(@Playlists);
@@ -409,12 +408,19 @@ namespace Quest_Song_Exporter
 
         private void ClearText(object sender, RoutedEventArgs e)
         {
-            Quest.Text = "";
+            if(Quest.Text == "Quest IP")
+            {
+                Quest.Text = "";
+            }
+            
         }
 
         private void ClearTextN(object sender, RoutedEventArgs e)
         {
-            BName.Text = "";
+            if(BName.Text == "Backup Name")
+            {
+                BName.Text = "";
+            }
         }
 
 
@@ -605,18 +611,7 @@ namespace Quest_Song_Exporter
             for (int i = 0; i < directories.Length; i++)
             {
                 txtbox.AppendText("\n");
-                //System.out.println("");
-
-                //if(directories[i].Substring(directories[i].Length-4, directories[i].Length).(".zip")) {
-                //	System.out.println("File "+directories[i]+" is already zipped");
-                //	continue;
-                //}
-
-                //File Path = new File(Source + File.separator + directories[i]);
-                //if(!Path.isDirectory()) {
-                //	System.out.println(directories[i]+" is no Song");
-                //	continue;
-                //}
+          
 
                 if (!File.Exists(directories[i] + "\\" + "Info.dat") && !File.Exists(directories[i] + "\\" + "info.dat"))
                 {
@@ -689,10 +684,7 @@ namespace Quest_Song_Exporter
                                 }
                                 list.Add(Name.ToLower());
                                 txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder name: " + directories[i]);
-                                //File sour = new File(Source);
-                                //File src = new File(sour + File.separator + directories[i] + File.separator);
-                                //ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
+                                txtbox.AppendText("\nFolder: " + directories[i]);
 
                                 if ((bool)box.IsChecked)
                                 {
@@ -704,7 +696,7 @@ namespace Quest_Song_Exporter
                                         if(debug)
                                         {
                                             over.Add("\nSong Name: " + Name);
-                                            over.Add("\nFolder Name: " + directories[i]);
+                                            over.Add("\nFolder: " + directories[i]);
                                             over.Add("\n");
                                         }
                                     
@@ -772,10 +764,7 @@ namespace Quest_Song_Exporter
                                 }
                                 list.Add(Name.ToLower());
                                 txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder name: " + directories[i]);
-                                //File sour = new File(Source);
-                                //File src = new File(sour + File.separator + directories[i] + File.separator);
-                                //ZipIt.zipDirectory(src, Source + File.separator + Name + ".zip");
+                                txtbox.AppendText("\nFolder: " + directories[i]);
 
                                 if ((bool)box.IsChecked)
                                 {
@@ -787,7 +776,7 @@ namespace Quest_Song_Exporter
                                         if (debug)
                                         {
                                             over.Add("\nSong Name: " + Name);
-                                            over.Add("\nFolder Name: " + directories[i]);
+                                            over.Add("\nFolder: " + directories[i]);
                                             over.Add("\n");
                                         }
                                         overwritten++;
@@ -898,6 +887,52 @@ namespace Quest_Song_Exporter
 
         }
 
+
+        private void Check(object sender, RoutedEventArgs e)
+        {
+            if(!(bool)index.IsChecked)
+            {
+                index.IsChecked = true;
+            }
+            if((bool)auto.IsChecked)
+            {
+                zips.IsChecked = false;
+            }
+        }
+
+        private void Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)box.IsChecked)
+            {
+                index.IsChecked = false;
+            }
+        }
+
+        private void Overwrite(object sender, RoutedEventArgs e)
+        {
+            if((bool)index.IsChecked)
+            {
+                box.IsChecked = false;
+            }
+        }
+
+        private void Uncheck(object sender, RoutedEventArgs e)
+        {
+            if ((bool)zips.IsChecked)
+            {
+                zips.IsChecked = false;
+            }
+        }
+
+        private void AutoM(object sender, RoutedEventArgs e)
+        {
+            if((bool)zips.IsChecked)
+            {
+                zips.IsChecked = false;
+            }
+        }
+
+
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             if (Running)
@@ -920,7 +955,15 @@ namespace Quest_Song_Exporter
             if ((bool)index.IsChecked)
             {
                 //Index Songs
-                IndexSongs(path, dest);
+                if((bool)zips.IsChecked)
+                {
+                    unzip(path);
+                    
+                } else
+                {
+                    IndexSongs(path, dest, false);
+                }
+                
             }
             else
             {
@@ -928,9 +971,45 @@ namespace Quest_Song_Exporter
             }
         }
 
-
-        public void IndexSongs(String Path, String dest)
+        public void unzip(String Path)
         {
+            int end;
+            String f;
+            string[] directories = Directory.GetFiles(Path);
+            if (Directory.Exists(exe + "\\tmp\\Zips"))
+            {
+                Directory.Delete(exe + "\\tmp\\Zips", true);
+            }
+            if (!Directory.Exists(exe + "\\tmp\\Zips"))
+            {
+                Directory.CreateDirectory(exe + "\\tmp\\Zips");
+            }
+            String dest = exe + "\\tmp\\Zips";
+            txtbox.AppendText("\nUnziping files to temporary folder.");
+
+            for (int i = 0; i < directories.Length; i++)
+            {
+                if(!directories[i].EndsWith(".zip"))
+                {
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                    continue;
+                }
+                
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                    end = directories[i].LastIndexOf("\\");
+                    f = directories[i].Substring(end + 1, directories[i].Length - end - 4);
+                    ZipFile.ExtractToDirectory(directories[i], dest + "\\" + f);
+                }));
+
+            }
+            txtbox.AppendText("\nUnziping complete.");
+            IndexSongs(dest, Path, true);
+        }
+
+
+        public void IndexSongs(String Path, String dest, Boolean Zips)
+        {
+            String zip = "";
             ArrayList list = new ArrayList();
             ArrayList Folder = new ArrayList();
             ArrayList Version = new ArrayList();
@@ -941,6 +1020,7 @@ namespace Quest_Song_Exporter
             ArrayList requierments = new ArrayList();
             ArrayList requiered = new ArrayList();
             int exported = 0;
+            int end = 0;
             String Name = "";
             String Source = Path;
             String V = "";
@@ -1030,9 +1110,21 @@ namespace Quest_Song_Exporter
                                 }
 
                                 list.Add(Name);
-                                Folder.Add(directories[i]);
                                 txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder name: " + directories[i]);
+
+                                if (Zips)
+                                {
+                                    end = directories[i].LastIndexOf("\\");
+                                    zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
+                                    txtbox.AppendText("\nZip: " + zip);
+                                    Folder.Add(zip);
+                                }
+                                else
+                                {
+                                    txtbox.AppendText("\nFolder: " + directories[i]);
+                                    Folder.Add(directories[i]);
+                                }
+
 
                                 exported++;
                                 Name = "";
@@ -1051,9 +1143,21 @@ namespace Quest_Song_Exporter
                                 }
 
                                 list.Add(Name);
-                                Folder.Add(directories[i]);
+                                
                                 txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder name: " + directories[i]);
+
+                                if(Zips)
+                                {
+                                    end = directories[i].LastIndexOf("\\");
+                                    zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
+                                    txtbox.AppendText("\nZip: " + zip);
+                                    Folder.Add(zip);
+                                } else
+                                {
+                                    txtbox.AppendText("\nFolder: " + directories[i]);
+                                    Folder.Add(directories[i]);
+                                }
+                                
 
                                 exported++;
                                 Name = "";
@@ -1353,7 +1457,14 @@ namespace Quest_Song_Exporter
                 txt.Add("Map Author: " + MAuthor[C]);
                 txt.Add("Map Version: " + Version[C]);
                 txt.Add("Requiered mods: " + requiered[C]);
-                txt.Add("Folder: " + Folder[C]);
+                if(Zips)
+                {
+                    txt.Add("Zip: " + Folder[C]);
+                } else
+                {
+                    txt.Add("Folder: " + Folder[C]);
+                }
+                
                 txt.Add("");
             }
             String[] output = (string[])txt.ToArray(typeof(string));
@@ -1372,18 +1483,20 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\nMap Authors: " + MAuthor.Count);
                 txtbox.AppendText("\nRequiered Mods: " + requiered.Count);
                 txtbox.AppendText("\nMap Versions: " + Version.Count);
-                txtbox.AppendText("\nFolders: " + Folder.Count);
+                if(Zips)
+                {
+                    txtbox.AppendText("\nZips: " + Folder.Count);
+                } else
+                {
+                    txtbox.AppendText("\nFolders: " + Folder.Count);
+                }
+                
             }
             if ((bool)auto.IsChecked && dest == exe + "\\CustomSongs")
             {
                 txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
             }
             Running = false;
-        }
-
-        private void Button_MouseEnter(object sender, MouseEventArgs e)
-        {
-
         }
     }
 }
