@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 8;
-        int PatchV = 0;
+        int PatchV = 1;
         Boolean Preview = false;
 
         String IP = "";
@@ -72,6 +72,10 @@ namespace Quest_Song_Exporter
             {
                 Directory.CreateDirectory(exe + "\\CustomSongs");
             }
+            if (!Directory.Exists(exe + "\\Playlists"))
+            {
+                Directory.CreateDirectory(exe + "\\Playlists");
+            }
             if (File.Exists(exe + "\\QSE_Update.exe"))
             {
                 File.Delete(exe + "\\QSE_Update.exe");
@@ -79,7 +83,7 @@ namespace Quest_Song_Exporter
             Update();
             
             Backups.SelectedIndex = 0;
-            getBackups(exe + "\\CustomSongs");
+            getBackups(exe + "\\Playlists");
 
 
         }
@@ -240,10 +244,10 @@ namespace Quest_Song_Exporter
                 getQuestIP();
                 if (dest == null)
                 {
-                    dest = exe + "\\CustomSongs";
-                    if (!Directory.Exists(exe + "\\CustomSongs"))
+                    dest = exe + "\\Playlists";
+                    if (!Directory.Exists(exe + "\\Playlists"))
                     {
-                        Directory.CreateDirectory(exe + "\\CustomSongs");
+                        Directory.CreateDirectory(exe + "\\Playlists");
                     }
                 }
 
@@ -264,7 +268,7 @@ namespace Quest_Song_Exporter
                     }
                 }
 
-                txtbox.AppendText("\n\nBacking up Playlist to " + dest + "\\" + BName.Text + ".json");
+                txtbox.AppendText("\n\nBacking up Playlist to " + exe + "\\Playlists\\" + BName.Text + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -289,9 +293,9 @@ namespace Quest_Song_Exporter
                 {
                     int Index = line.IndexOf("\"Mods\":[{", 0, line.Length);
                     String Playlists = line.Substring(0, Index);
-                    File.WriteAllText(exe + "\\CustomSongs\\" + BName.Text + ".json", Playlists);
+                    File.WriteAllText(exe + "\\Playlists\\" + BName.Text + ".json", Playlists);
                 }
-                txtbox.AppendText("\n\nBacked up Playlists to " + dest + "\\" + BName.Text + ".json");
+                txtbox.AppendText("\n\nBacked up Playlists to " + exe + "\\Playlists\\" + BName.Text + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
@@ -301,7 +305,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\n- Your Quest is on.");
 
             }
-            getBackups(exe + "\\CustomSongs");
+            getBackups(exe + "\\Playlists");
             Running = false;
 
         }
@@ -341,7 +345,7 @@ namespace Quest_Song_Exporter
                     dest = path;
                 }
 
-                txtbox.AppendText("\n\nRestoring Playlist from " + exe + "\\CustomSongs\\" + Backups.SelectedValue + ".json");
+                txtbox.AppendText("\n\nRestoring Playlist from " + exe + "\\Playlists\\" + Backups.SelectedValue + ".json");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -352,14 +356,15 @@ namespace Quest_Song_Exporter
                 }
                 using (WebClient client = new WebClient())
                 {
-                    client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\OConfig.json");
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                        client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\OConfig.json");
+                    }));
+                    
                 }
 
                 String Config = exe + "\\tmp\\OConfig.json";
 
-                Playlists = exe + "\\CustomSongs\\" + Backups.SelectedValue + ".json";
-
-                txtbox.AppendText("\n\n" + Playlists);
+                Playlists = exe + "\\Playlists\\" + Backups.SelectedValue + ".json";
 
                 StreamReader reader = new StreamReader(@Config);
                 String line;
@@ -393,7 +398,9 @@ namespace Quest_Song_Exporter
                 String FConfig = o.ToString();
                 File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
 
-                postChanges(exe + "\\tmp\\config.json");
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                    postChanges(exe + "\\tmp\\config.json");
+                }));
                 txtbox.AppendText("\n\nRestored old Playlists.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
