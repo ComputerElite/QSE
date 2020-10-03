@@ -81,10 +81,25 @@ namespace Quest_Song_Exporter
                 File.Delete(exe + "\\QSE_Update.exe");
             }
             Update();
+            Move();
             
             Backups.SelectedIndex = 0;
             getBackups(exe + "\\Playlists");
 
+
+        }
+
+        public void Move()
+        {
+            string[] Files = Directory.GetFiles(exe + "\\CustomSongs");
+            for (int i = 0; i < Files.Length; i++)
+            {
+                if (Files[i].EndsWith(".json"))
+                {
+
+                    File.Move(Files[i], exe + "\\Playlists\\" + Files[i].Substring(Files[i].LastIndexOf("\\") + 1, Files[i].Length - 1 - Files[i].LastIndexOf("\\")));
+                }
+            }
 
         }
 
