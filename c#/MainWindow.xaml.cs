@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 8;
-        int PatchV = 1;
+        int PatchV = 2;
         Boolean Preview = false;
 
         String IP = "";
@@ -1034,7 +1034,6 @@ namespace Quest_Song_Exporter
             String zip = "";
             ArrayList list = new ArrayList();
             ArrayList Folder = new ArrayList();
-            ArrayList Version = new ArrayList();
             ArrayList BPM = new ArrayList();
             ArrayList Author = new ArrayList();
             ArrayList SubName = new ArrayList();
@@ -1045,7 +1044,6 @@ namespace Quest_Song_Exporter
             int end = 0;
             String Name = "";
             String Source = Path;
-            String V = "";
             String B = "";
             String A = "";
             String S = "";
@@ -1222,39 +1220,6 @@ namespace Quest_Song_Exporter
                                 requierments.Add("Chroma, ");
                             }
 
-                        }
-
-                        /////////Version
-
-                        if (line.Contains("_version"))
-                        {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                V = Strings(line, 3);
-
-                                V = V.Substring(0, V.Length - 1);
-
-                                Version.Add(V);
-                                txtbox.AppendText("\nVersion: " + V);
-                                V = "";
-                            } 
-                            else
-                            {
-                                if(!custom)
-                                {
-                                    //normal Map
-                                    V = Strings(line, 3);
-
-                                    V = V.Substring(0, V.Length - 1);
-
-                                    Version.Add(V);
-                                    txtbox.AppendText("\nVersion: " + V);
-                                    V = "";
-                                }
-                            }
-
-                                
                         }
 
                         /////////Song Sub Name
@@ -1477,7 +1442,6 @@ namespace Quest_Song_Exporter
                 txt.Add("BPM: " + BPM[C]);
                 txt.Add("Song Author: " + Author[C]);
                 txt.Add("Map Author: " + MAuthor[C]);
-                txt.Add("Map Version: " + Version[C]);
                 txt.Add("Requiered mods: " + requiered[C]);
                 if(Zips)
                 {
@@ -1504,7 +1468,6 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\nSong Authors: " + Author.Count);
                 txtbox.AppendText("\nMap Authors: " + MAuthor.Count);
                 txtbox.AppendText("\nRequiered Mods: " + requiered.Count);
-                txtbox.AppendText("\nMap Versions: " + Version.Count);
                 if(Zips)
                 {
                     txtbox.AppendText("\nZips: " + Folder.Count);
