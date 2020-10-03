@@ -12,7 +12,7 @@ Do everything as above and check "Make List of all songs". This will create a Li
 <br/>
 <br/>
 ### How to do Playlist Backups
-Enter your Quests IP, a Backup name and click "Backup Playlists". The It'll save your Playlists.
+Enter your Quests IP and a Backup name and click "Backup Playlists". The It'll save your Playlists.
 
 **Note**: It Does **Not save Songs. Only Playlist Configuration gets saved**.<br/><br/>
 ### How to restore Playlists
