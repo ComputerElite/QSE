@@ -1,4 +1,4 @@
-https://github.com/ComputerElite/QSE/releases/download/3.8.2/QSE.3.8.2.zip
+https://github.com/ComputerElite/QSE/releases/download/3.8.3/QSE.3.8.3.zip
 3
 8
-2
+3
