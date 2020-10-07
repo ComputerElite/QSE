@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 8;
-        int PatchV = 2;
+        int PatchV = 3;
         Boolean Preview = false;
 
         String IP = "";
@@ -583,7 +583,7 @@ namespace Quest_Song_Exporter
                 {
                     // Start the process with the info we specified.
                     // Call WaitForExit and then the using statement will close.
-                    using (Process exeProcess = Process.Start(s))
+                    using (Process exeProcess = Process.Start(se))
                     {
                         exeProcess.WaitForExit();
                         copied = true;
@@ -1048,7 +1048,6 @@ namespace Quest_Song_Exporter
             String A = "";
             String S = "";
             String M = "";
-            Boolean custom = false;
             Running = true;
 
             if ((bool)auto.IsChecked)
@@ -1066,14 +1065,13 @@ namespace Quest_Song_Exporter
                 }
 
             }
-
+            
             string[] directories = Directory.GetDirectories(Source);
 
 
 
             for (int i = 0; i < directories.Length; i++)
             {
-                custom = false;
                 requierments.Clear();
                 //Check if Folder is Valid Song
                 txtbox.AppendText("\n");
@@ -1103,15 +1101,6 @@ namespace Quest_Song_Exporter
                     
                     while ((line = reader.ReadLine()) != null)
                     {
-                        
-                        /////////CustomData
-
-                        if (line.Contains("_customData"))
-                        {
-                            custom = true;
-                        }
-
-                        
 
                         /////////Song Name
 
