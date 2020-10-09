@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 8;
-        int PatchV = 3;
+        int PatchV = 4;
         Boolean Preview = false;
 
         String IP = "";
@@ -131,7 +131,15 @@ namespace Quest_Song_Exporter
                 //Download Update.txt
                 using (WebClient client = new WebClient())
                 {
-                    client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
+                    try
+                    {
+                        client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
+                    }
+                    catch
+                    {
+                        txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
+                        txtbox.AppendText("\n\n- Your PC has internet.");
+                    }
                 }
                 StreamReader VReader = new StreamReader(exe + "\\tmp\\Update.txt");
 
@@ -220,7 +228,7 @@ namespace Quest_Song_Exporter
             catch
             {
                 // Log error.
-                txtbox.AppendText("\nAn Error Occured");
+                txtbox.AppendText("\n\n\nAn error Occured (Code: UD200). Couldn't download Update.");
             }
         }
 
@@ -314,7 +322,7 @@ namespace Quest_Song_Exporter
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
-                txtbox.AppendText("\n\n\nAn error occured. Check following:");
+                txtbox.AppendText("\n\n\nAn error occured (Code: PL100). Check following:");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
                 txtbox.AppendText("\n\n- You've choosen a Backup Name.");
                 txtbox.AppendText("\n\n- Your Quest is on.");
@@ -420,10 +428,9 @@ namespace Quest_Song_Exporter
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
-                txtbox.AppendText("\n\n\nAn error occured. Check following:");
+                txtbox.AppendText("\n\n\nAn error occured (Code: BMBF100). Check following:");
                 txtbox.AppendText("\n\n- Your Quest is on and BMBF opened");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
-                txtbox.AppendText("\n\n- You've choosen the right Source path");
             }
             Running = false;
         }
@@ -591,7 +598,7 @@ namespace Quest_Song_Exporter
                 } catch
                 {
                     // Log error.
-                    txtbox.AppendText("\n\n\nAn Error Occured. Check following");
+                    txtbox.AppendText("\n\n\nAn Error Occured (Code: ADB100). Check following");
                     txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
                     txtbox.AppendText("\n\n- You have adb installed.");
                 }
@@ -838,7 +845,17 @@ namespace Quest_Song_Exporter
             //ZipIt.zipDirectory(src, Output);;
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
-            txtbox.AppendText("\nFinished! Exported " + exported + " Songs");
+            if (exported == 0 && (bool)auto.IsChecked)
+            {
+                txtbox.AppendText("\nerror (Code: QSE110). ");
+            } else if(exported == 0 && !(bool)auto.IsChecked)
+            {
+                txtbox.AppendText("\nerror (Code: QSE100). ");
+            }
+            else
+            {
+                txtbox.AppendText("\nFinished! Backed up " + exported + " Songs.");
+            }
             if ((bool)auto.IsChecked && dest == exe + "\\CustomSongs")
             {
                 txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
