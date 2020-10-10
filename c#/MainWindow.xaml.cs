@@ -37,8 +37,8 @@ namespace Quest_Song_Exporter
     {
 
         int MajorV = 3;
-        int MinorV = 8;
-        int PatchV = 4;
+        int MinorV = 9;
+        int PatchV = 0;
         Boolean Preview = false;
 
         String IP = "";
@@ -661,177 +661,91 @@ namespace Quest_Song_Exporter
                 try
                 {
                     StreamReader reader = new StreamReader(@dat);
+                    String text = "";
                     String line;
+
                     while ((line = reader.ReadLine()) != null)
                     {
+                        text = text + line;
+                    }
 
-                        if (line.Contains("_songName"))
+                    var json = SimpleJSON.JSON.Parse(text);
+                    Name = json["_songName"].ToString();
+
+                    Name = Name.Replace("/", "");
+                    Name = Name.Replace(":", "");
+                    Name = Name.Replace("*", "");
+                    Name = Name.Replace("?", "");
+                    Name = Name.Replace("\"", "");
+                    Name = Name.Replace("<", "");
+                    Name = Name.Replace(">", "");
+                    Name = Name.Replace("|", "");
+
+                    for (int f = 0; f < Name.Length; f++)
+                    {
+                        if (Name.Substring(f, 1).Equals("\\"))
                         {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                Name = Strings(line, 7);
-
-                                Name = Name.Substring(0, Name.Length - 1);
-
-                                //Name = Name.replaceAll("[\\]", "");
-                                Name = Name.Replace("/", "");
-                                Name = Name.Replace(":", "");
-                                Name = Name.Replace("*", "");
-                                Name = Name.Replace("?", "");
-                                Name = Name.Replace("\"", "");
-                                Name = Name.Replace("<", "");
-                                Name = Name.Replace(">", "");
-                                Name = Name.Replace("|", "");
-
-                                for (int f = 0; f < Name.Length; f++)
-                                {
-                                    if (Name.Substring(f, 1).Equals("\\"))
-                                    {
-                                        Name = Name.Substring(0, f - 1) + Name.Substring(f + 1, Name.Length - f - 1);
-                                    }
-                                }
-                                int Time = 0;
-                                while (Name.Substring(Name.Length - 1, 1).Equals(" "))
-                                {
-                                    Name = Name.Substring(0, Name.Length - 1);
-                                }
-
-                                while (list.Contains(Name.ToLower()))
-                                {
-                                    Time++;
-                                    if (Time > 1)
-                                    {
-                                        Name = Name.Substring(0, Name.Length - 1);
-                                        Name = Name + Time;
-                                    }
-                                    else
-                                    {
-                                        Name = Name + " " + Time;
-                                    }
-
-                                }
-                                list.Add(Name.ToLower());
-                                txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder: " + directories[i]);
-
-                                if ((bool)box.IsChecked)
-                                {
-                                    bool v = File.Exists(dest + "\\" + Name + ".zip");
-                                    if (v)
-                                    {
-                                        File.Delete(dest + "\\" + Name + ".zip");
-                                        txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
-                                        if(debug)
-                                        {
-                                            over.Add("\nSong Name: " + Name);
-                                            over.Add("\nFolder: " + directories[i]);
-                                            over.Add("\n");
-                                        }
-                                    
-                                        overwritten++;
-                                    }
-                                }
-                                else
-                                {
-                                    bool v = File.Exists(dest + "\\" + Name + ".zip");
-                                    if (v)
-                                    {
-                                        txtbox.AppendText("\nthis Song already exists");
-                                    }
-                                }
-
-                                zip(directories[i], dest + "\\" + Name + ".zip");
-                                exported++;
-                                Name = "";
-                                //src = new File("");
-
-                            }
-                            else
-                            {
-                                //normal Map
-                                Name = Strings(line, 3);
-
-                                Name = Name.Substring(0, Name.Length - 1);
-
-                                //Name = Name.replaceAll("[\\]", "");
-                                Name = Name.Replace("/", "");
-                                Name = Name.Replace(":", "");
-                                Name = Name.Replace("*", "");
-                                Name = Name.Replace("?", "");
-                                Name = Name.Replace("\"", "");
-                                Name = Name.Replace("<", "");
-                                Name = Name.Replace(">", "");
-                                Name = Name.Replace("|", "");
-
-                                for (int f = 0; f < Name.Length; f++)
-                                {
-                                    if (Name.Substring(f, 1).Equals("\\"))
-                                    {
-                                        Name = Name.Substring(0, f - 1) + Name.Substring(f + 1, Name.Length - f - 1);
-                                    }
-                                }
-                                int Time = 0;
-                                while (Name.Substring(Name.Length - 1, 1).Equals(" "))
-                                {
-                                    Name = Name.Substring(0, Name.Length - 1);
-                                }
-
-                                while (list.Contains(Name.ToLower()))
-                                {
-                                    Time++;
-                                    if (Time > 1)
-                                    {
-                                        Name = Name.Substring(0, Name.Length - 1);
-                                        Name = Name + Time;
-                                    }
-                                    else
-                                    {
-                                        Name = Name + " " + Time;
-                                    }
-
-                                }
-                                list.Add(Name.ToLower());
-                                txtbox.AppendText("\nSong Name: " + Name);
-                                txtbox.AppendText("\nFolder: " + directories[i]);
-
-                                if ((bool)box.IsChecked)
-                                {
-                                    bool v = File.Exists(dest + "\\" + Name + ".zip");
-                                    if (v)
-                                    {
-                                        File.Delete(dest + "\\" + Name + ".zip");
-                                        txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
-                                        if (debug)
-                                        {
-                                            over.Add("\nSong Name: " + Name);
-                                            over.Add("\nFolder: " + directories[i]);
-                                            over.Add("\n");
-                                        }
-                                        overwritten++;
-                                    }
-                                }
-                                else
-                                {
-                                    bool v = File.Exists(dest + "\\" + Name + ".zip");
-                                    if (v)
-                                    {
-                                        txtbox.AppendText("\nthis Song already exists");
-                                    }
-                                }
-
-                                zip(directories[i], dest + "\\" + Name + ".zip");
-                                exported++;
-                                Name = "";
-                                //src = new File("");
-
-                            }
+                            Name = Name.Substring(0, f - 1) + Name.Substring(f + 1, Name.Length - f - 1);
                         }
-                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                        txtbox.ScrollToEnd();
+                    }
+                    int Time = 0;
+                    while (Name.Substring(Name.Length - 1, 1).Equals(" "))
+                    {
+                        Name = Name.Substring(0, Name.Length - 1);
+                    }
+
+                    while (list.Contains(Name.ToLower()))
+                    {
+                        Time++;
+                        if (Time > 1)
+                        {
+                            Name = Name.Substring(0, Name.Length - 1);
+                            Name = Name + Time;
+                        }
+                        else
+                        {
+                            Name = Name + " " + Time;
+                        }
 
                     }
-                    reader.Close();
+                    list.Add(Name.ToLower());
+                    txtbox.AppendText("\nSong Name: " + Name);
+                    txtbox.AppendText("\nFolder: " + directories[i]);
+
+                    if ((bool)box.IsChecked)
+                    {
+                        bool v = File.Exists(dest + "\\" + Name + ".zip");
+                        if (v)
+                        {
+                            File.Delete(dest + "\\" + Name + ".zip");
+                            txtbox.AppendText("\noverwritten file: " + dest + "\\" + Name + ".zip");
+                            if(debug)
+                            {
+                                over.Add("\nSong Name: " + Name);
+                                over.Add("\nFolder: " + directories[i]);
+                                over.Add("\n");
+                            }
+                                    
+                            overwritten++;
+                        }
+                    }
+                    else
+                    {
+                        bool v = File.Exists(dest + "\\" + Name + ".zip");
+                        if (v)
+                        {
+                            txtbox.AppendText("\nthis Song already exists");
+                        }
+                    }
+
+                    zip(directories[i], dest + "\\" + Name + ".zip");
+                    exported++;
+                    Name = "";
+                    //src = new File("");
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                    txtbox.ScrollToEnd();
+
+                 reader.Close();
                 }
                 catch
                 {
@@ -842,15 +756,14 @@ namespace Quest_Song_Exporter
             }
 
 
-            //ZipIt.zipDirectory(src, Output);;
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
             if (exported == 0 && (bool)auto.IsChecked)
             {
-                txtbox.AppendText("\nerror (Code: QSE110). ");
+                txtbox.AppendText("\nerror (Code: QSE110). No Songs were zipped.");
             } else if(exported == 0 && !(bool)auto.IsChecked)
             {
-                txtbox.AppendText("\nerror (Code: QSE100). ");
+                txtbox.AppendText("\nerror (Code: QSE100). No Songs were zipped.");
             }
             else
             {
@@ -884,7 +797,7 @@ namespace Quest_Song_Exporter
 
         public String Strings(String line, int StartIndex)
         {
-            int count = 0;
+            /*int count = 0;
             String Name = "";
             for (int n = 0; n < line.Length; n++)
             {
@@ -899,7 +812,9 @@ namespace Quest_Song_Exporter
                     count++;
                 }
             }
-            return Name;
+            */
+            return "xD";
+            
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -1114,299 +1029,152 @@ namespace Quest_Song_Exporter
                 try
                 {
                     StreamReader reader = new StreamReader(@dat);
+
+                    String text = "";
                     String line;
-                    
+
                     while ((line = reader.ReadLine()) != null)
                     {
+                        text = text + line;
+                    }
 
-                        /////////Song Name
+                    var json = SimpleJSON.JSON.Parse(text);
+                    Name = json["_songName"].ToString();
 
-                        if (line.Contains("_songName"))
+                    Name = Name.Substring(1, Name.Length - 2);
+                    while (Name.Substring(Name.Length - 1, 1).Equals(" "))
+                    {
+                        Name = Name.Substring(0, Name.Length - 1);
+                    }
+
+                    list.Add(Name);
+                    txtbox.AppendText("\nSong Name: " + Name);
+
+                    if (Zips)
+                    {
+                        end = directories[i].LastIndexOf("\\");
+                        zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
+                        txtbox.AppendText("\nZip: " + zip);
+                        Folder.Add(zip);
+                    }
+                    else
+                    {
+                        txtbox.AppendText("\nFolder: " + directories[i]);
+                        Folder.Add(directories[i]);
+                    }
+
+
+                    exported++;
+                    Name = "";
+
+
+
+                    /////////Requirements
+
+                    Name = json["_difficultyBeatmapSets"][0]["_difficultyBeatmaps"][0]["_customData"]["_requirements"].ToString();
+
+                    if(Name.Contains("GameSaber"))
+                    {
+                        if (!requierments.Contains("GameSaber, "))
                         {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                Name = Strings(line, 7);
-
-                                Name = Name.Substring(0, Name.Length - 1);
-
-                                while (Name.Substring(Name.Length - 1, 1).Equals(" "))
-                                {
-                                    Name = Name.Substring(0, Name.Length - 1);
-                                }
-
-                                list.Add(Name);
-                                txtbox.AppendText("\nSong Name: " + Name);
-
-                                if (Zips)
-                                {
-                                    end = directories[i].LastIndexOf("\\");
-                                    zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
-                                    txtbox.AppendText("\nZip: " + zip);
-                                    Folder.Add(zip);
-                                }
-                                else
-                                {
-                                    txtbox.AppendText("\nFolder: " + directories[i]);
-                                    Folder.Add(directories[i]);
-                                }
-
-
-                                exported++;
-                                Name = "";
-
-                            }
-                            else
-                            {
-                                //Normal Map
-                                Name = Strings(line, 3);
-
-                                Name = Name.Substring(0, Name.Length - 1);
-
-                                while (Name.Substring(Name.Length - 1, 1).Equals(" "))
-                                {
-                                    Name = Name.Substring(0, Name.Length - 1);
-                                }
-
-                                list.Add(Name);
-                                
-                                txtbox.AppendText("\nSong Name: " + Name);
-
-                                if(Zips)
-                                {
-                                    end = directories[i].LastIndexOf("\\");
-                                    zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
-                                    txtbox.AppendText("\nZip: " + zip);
-                                    Folder.Add(zip);
-                                } else
-                                {
-                                    txtbox.AppendText("\nFolder: " + directories[i]);
-                                    Folder.Add(directories[i]);
-                                }
-                                
-
-                                exported++;
-                                Name = "";
-                            }
+                            requierments.Add("GameSaber, ");
                         }
-
-                        /////////Requirements
-
-                        if (line.Contains("GameSaber"))
-                        {
-                            if(!requierments.Contains("GameSaber, "))
-                            {
-                                requierments.Add("GameSaber, ");
-                            }
-
-                        }
-
-                        if (line.Contains("Mapping Extensions"))
-                        {
-                            if (!requierments.Contains("Mapping Extensions, "))
-                            {
-                                requierments.Add("Mapping Extensions, ");
-                            }
-
-                        }
-
-                        if (line.Contains("Noodle Extensions"))
-                        {
-                            if (!requierments.Contains("Noodle Extensions, "))
-                            {
-                                requierments.Add("Noodle Extensions, ");
-                            }
-
-                        }
-
-                        if (line.Contains("Chroma"))
-                        {
-                            if (!requierments.Contains("Chroma, "))
-                            {
-                                requierments.Add("Chroma, ");
-                            }
-
-                        }
-
-                        /////////Song Sub Name
-
-                        if (line.Contains("_songSubName"))
-                        {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                S = Strings(line, 11);
-                                if (!S.Equals("\""))
-                                {
-                                    S = S.Substring(0, S.Length - 1);
-                                }
-                                else
-                                {
-                                    S = "N/A";
-                                }
-
-
-                                SubName.Add(S);
-                                txtbox.AppendText("\nSubName: " + S);
-                                S = "";
-                            }
-                            else
-                            {
-                                //normal map
-                                S = Strings(line, 3);
-
-                                if (!S.Equals("\""))
-                                {
-                                    S = S.Substring(0, S.Length - 1);
-                                }
-                                else
-                                {
-                                    S = "N/A";
-                                }
-
-                                SubName.Add(S);
-                                txtbox.AppendText("\nSubName: " + S);
-                                S = "";
-                            }
-                        }
-
-                        /////////Song Author
-
-                        if (line.Contains("_songAuthorName"))
-                        {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                A = Strings(line, 11);
-
-                                if (!A.Equals("\""))
-                                {
-                                    A = A.Substring(0, A.Length - 1);
-                                }
-                                else
-                                {
-                                    A = "N/A";
-                                }
-
-                                Author.Add(A);
-                                txtbox.AppendText("\nSong author: " + A);
-                                A = "";
-                            }
-                            else
-                            {
-                                //normal map
-                                A = Strings(line, 3);
-
-                                if (!A.Equals("\""))
-                                {
-                                    A = A.Substring(0, A.Length - 1);
-                                }
-                                else
-                                {
-                                    A = "N/A";
-                                }
-
-                                Author.Add(A);
-                                txtbox.AppendText("\nSong author: " + A);
-                                A = "";
-                            }
-                        }
-
-                        /////////Map Author
-
-                        if (line.Contains("_levelAuthorName"))
-                        {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                M = Strings(line, 19);
-
-                                if (!M.Equals("\""))
-                                {
-                                    M = M.Substring(0, M.Length - 1);
-                                }
-                                else
-                                {
-                                    M = "N/A";
-                                }
-
-                                MAuthor.Add(M);
-                                txtbox.AppendText("\nMap author: " + M);
-                                M = "";
-                            }
-                            else
-                            {
-                                //normal map
-                                M = Strings(line, 3);
-
-                                if (!M.Equals("\""))
-                                {
-                                    M = M.Substring(0, M.Length - 1);
-                                }
-                                else
-                                {
-                                    M = "N/A";
-                                }
-
-                                MAuthor.Add(M);
-                                txtbox.AppendText("\nMap author: " + M);
-                                M = "";
-                            }
-                        }
-
-                        /////////BPM
-
-                        if (line.Contains("_beatsPerMinute"))
-                        {
-                            if (line.Contains("_version") && line.Contains("songName"))
-                            {
-                                //BeatSage
-                                B = Strings(line, 22);
-
-                                if (!B.Equals("\""))
-                                {
-                                    B = B.Substring(1, B.Length - 2);
-                                    B = B.Replace(",", "");
-                                    B = B.Replace(" ", "");
-                                    B = B.Replace(":", "");
-                                }
-                                else
-                                {
-                                    B = "N/A";
-                                }
-
-                                BPM.Add(B);
-                                txtbox.AppendText("\nBPM: " + B);
-                                B = "";
-                            }
-                            else
-                            {
-                                //normal map
-                                B = Strings(line, 2);
-
-                                if (!B.Equals("\""))
-                                {
-                                    B = B.Substring(1, B.Length - 2);
-                                    B = B.Replace(",", "");
-                                    B = B.Replace(" ", "");
-                                    B = B.Replace(":", "");
-                                }
-                                else
-                                {
-                                    B = "N/A";
-                                }
-
-                                BPM.Add(B);
-                                txtbox.AppendText("\nBPM: " + B);
-                                B = "";
-                            }
-                        }
+                    }
                         
 
-                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                        txtbox.ScrollToEnd();
+                    if (Name.Contains("Mapping Extensions"))
+                    {
+                        if (!requierments.Contains("Mapping Extensions, "))
+                        {
+                            requierments.Add("Mapping Extensions, ");
+                        }
 
                     }
+
+                    if (Name.Contains("Noodle Extensions"))
+                    {
+                        if (!requierments.Contains("Noodle Extensions, "))
+                        {
+                            requierments.Add("Noodle Extensions, ");
+                        }
+
+                    }
+
+                    if (Name.Contains("Chroma"))
+                    {
+                        if (!requierments.Contains("Chroma, "))
+                        {
+                            requierments.Add("Chroma, ");
+                        }
+
+                    }
+
+                    /////////Song Sub Name
+
+                    S = json["_songSubName"];
+                    if (S.Equals(""))
+                    {
+                        S = "N/A";
+                    }
+
+
+                    SubName.Add(S);
+                    txtbox.AppendText("\nSubName: " + S);
+                    S = "";
+
+
+                    /////////Song Author
+
+                    A = json["_songAuthorName"];
+
+                    if (A.Equals(""))
+                    {
+                        A = "N/A";
+                    }
+
+                    Author.Add(A);
+                    txtbox.AppendText("\nSong author: " + A);
+                    A = "";
+                        
+
+                    /////////Map Author
+
+                    M = json["_levelAuthorName"];
+
+                    if (M.Equals(""))
+                    {
+                       M = "N/A";
+                    }
+
+                    MAuthor.Add(M);
+                    txtbox.AppendText("\nMap author: " + M);
+                    M = "";
+                        
+
+                    /////////BPM
+
+                    B = json["_beatsPerMinute"];
+
+                    if (!B.Equals(""))
+                    {
+                        B = B.Replace(",", "");
+                        B = B.Replace(" ", "");
+                        B = B.Replace(":", "");
+                    }
+                    else
+                    {
+                        B = "N/A";
+                    }
+
+                    BPM.Add(B);
+                    txtbox.AppendText("\nBPM: " + B);
+                    B = "";
+                     
+                        
+
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                    txtbox.ScrollToEnd();
+
                     String Content = "";
                     
                     for (int a = 0; a < requierments.Count; a++)
