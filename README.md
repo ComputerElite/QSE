@@ -19,6 +19,12 @@ Enter your Quests IP and a Backup name and click "Backup Playlists". The It'll s
 Enter Your Quests IP and then choose the Backup in the drop down menu. Then press Restore Playlists. 
 
 **Note**: No Songs get restored. Be sure that you have all Songs that you had when you made the Backup.
+### How to delete Playlists with the Songs
+Enter your Quests IP nad click "Load Playlists". Then choose the Playlist you want to delete and click "Delete selected Playlists". 
+</br></br>
+#### **THIS IS NOT UNDOABLE**
+
+
 <br/>
 <br/>
 <br/>
