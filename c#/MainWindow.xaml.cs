@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 9;
-        int PatchV = 0;
+        int PatchV = 1;
         Boolean Preview = false;
 
         String IP = "";
@@ -101,6 +101,43 @@ namespace Quest_Song_Exporter
                 }
             }
 
+        }
+
+        public Boolean CheckIP()
+        {
+            getQuestIP();
+            if (IP == "Quest IP")
+            {
+                return false;
+            }
+            IP = IP.Replace(":5000000", "");
+            IP = IP.Replace(":500000", "");
+            IP = IP.Replace(":50000", "");
+            IP = IP.Replace(":5000", "");
+            IP = IP.Replace(":500", "");
+            IP = IP.Replace(":500", "");
+            IP = IP.Replace(":50", "");
+            IP = IP.Replace(":5", "");
+
+            int count = 0;
+            for (int i = 0; i < IP.Length; i++)
+            {
+                if (IP.Substring(i, 1) == ".")
+                {
+                    count++;
+                }
+            }
+            if (count != 3)
+            {
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                    Quest.Text = IP;
+                }));
+                return false;
+            }
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                Quest.Text = IP;
+            }));
+            return true;
         }
 
         public void getBackups(String Path)
@@ -260,6 +297,13 @@ namespace Quest_Song_Exporter
             {
                 return;
             }
+            Boolean good = CheckIP();
+            if (!good)
+            {
+                txtbox.AppendText("\n\nChoose a valid IP!");
+                Running = false;
+                return;
+            }
             Running = true;
             try
             {
@@ -350,7 +394,14 @@ namespace Quest_Song_Exporter
             {
                 return;
             }
-            if(Backups.SelectedIndex == 0)
+            Boolean good = CheckIP();
+            if (!good)
+            {
+                txtbox.AppendText("\n\nChoose a valid IP!");
+                Running = false;
+                return;
+            }
+            if (Backups.SelectedIndex == 0)
             {
                 return;
             }
