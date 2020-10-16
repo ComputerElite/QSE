@@ -37,9 +37,9 @@ namespace Quest_Song_Exporter
     {
 
         int MajorV = 3;
-        int MinorV = 9;
-        int PatchV = 1;
-        Boolean Preview = false;
+        int MinorV = 10;
+        int PatchV = 0;
+        Boolean Preview = true;
 
         String IP = "";
         String path;
@@ -50,6 +50,8 @@ namespace Quest_Song_Exporter
         Boolean draggable = true;
         Boolean Running = false;
         String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
+        ArrayList P = new ArrayList();
+        int Lists = 0;
 
 
         public MainWindow()
@@ -86,8 +88,262 @@ namespace Quest_Song_Exporter
             Backups.SelectedIndex = 0;
             getBackups(exe + "\\Playlists");
 
-
+            Playlists.Items.Add("Load Playlists!");
+            Playlists.SelectedIndex = 0;
+            StartBMBF();
         }
+
+        public void StartBMBF()
+        {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                adb("shell am start -n com.weloveoculus.BMBF/com.weloveoculus.BMBF.MainActivity");
+            }));
+        }
+
+        public Boolean adb(String Argument)
+        {
+            String User = System.Environment.GetEnvironmentVariable("USERPROFILE");
+            ProcessStartInfo s = new ProcessStartInfo();
+            s.CreateNoWindow = false;
+            s.UseShellExecute = false;
+            s.FileName = "adb.exe";
+            s.WindowStyle = ProcessWindowStyle.Minimized;
+            s.Arguments = Argument;
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(s))
+                {
+                    exeProcess.WaitForExit();
+                    return true;
+                }
+            }
+            catch
+            {
+
+                ProcessStartInfo se = new ProcessStartInfo();
+                se.CreateNoWindow = false;
+                se.UseShellExecute = false;
+                se.FileName = User + "\\AppData\\Roaming\\SideQuest\\platform-tools\\adb.exe";
+                se.WindowStyle = ProcessWindowStyle.Minimized;
+                se.Arguments = Argument;
+                try
+                {
+                    // Start the process with the info we specified.
+                    // Call WaitForExit and then the using statement will close.
+                    using (Process exeProcess = Process.Start(se))
+                    {
+                        exeProcess.WaitForExit();
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // Log error.
+                    txtbox.AppendText("\n\n\nAn error Occured (Code: ADB100). Check following");
+                    txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
+                    txtbox.AppendText("\n\n- You have adb installed.");
+                }
+            }
+            return false;
+        }
+
+        public void getPlaylists(object sender, RoutedEventArgs e)
+        {
+            StartBMBF();
+            if (!CheckIP())
+            {
+                txtbox.AppendText("\n\nChoose a valid IP!");
+                return;
+            }
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\Config.json");
+                } catch
+                {
+                    txtbox.AppendText("\n\n\nError (Code: BMBF100). Couldn't acces BMBF Web Interface. Check Following:");
+                    txtbox.AppendText("\n\n- You've put in the right IP");
+                    txtbox.AppendText("\n\n- BMBF is opened");
+                    return;
+                }
+            }
+            Playlists.Items.Clear();
+            Playlists.Items.Add("Playlists");
+
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    client.DownloadFile("https://raw.githubusercontent.com/BMBF/resources/master/assets/beatsaber-knowns.json", exe + "\\tmp\\beatsaber-knowns.json");
+                } catch
+                {
+                    txtbox.AppendText("Couldn't check for new Song Packs.");
+                }
+            }
+            String knows = exe + "\\tmp\\beatsaber-knowns.json";
+
+            StreamReader reader2 = new StreamReader(@knows);
+            String line2;
+            String end2 = "";
+            while ((line2 = reader2.ReadLine()) != null)
+            {
+                end2 = end2 + line2;
+            }
+            var json2 = SimpleJSON.JSON.Parse(end2);
+            String o;
+            int index3 = 0;
+            ArrayList known = new ArrayList();
+
+            while ((o = json2["knownLevelPackIds"][index3]) != null)
+            {
+                known.Add(o);
+
+                index3++;
+            }
+
+
+            String Config = exe + "\\tmp\\config.json";
+            P = new ArrayList();
+
+
+            StreamReader reader = new StreamReader(@Config);
+            String line;
+            String end = "";
+            while ((line = reader.ReadLine()) != null)
+            {
+                end = end + line;
+            }
+            var json = SimpleJSON.JSON.Parse(end);
+            int index = 0;
+
+            ArrayList PN = new ArrayList();
+
+            while ((o = json["Config"]["Playlists"][index]["PlaylistID"]) != null)
+            {
+                P.Add(o);
+                index++;
+            }
+            index = 0;
+            while ((o = json["Config"]["Playlists"][index]["PlaylistName"]) != null)
+            {
+                PN.Add(o);
+                index++;
+            }
+
+            for (int i = 0; i < P.Count; i++)
+            {
+                if (!known.Contains(P[i]))
+                {
+                    Playlists.Items.Add(PN[i]);
+                } else
+                {
+                    Lists++;
+                }
+            }
+            Playlists.SelectedIndex = 0;
+            txtbox.AppendText("\n\nLoaded Playlists.");
+        }
+
+        public void DeleteP(object sender, RoutedEventArgs e)
+        {
+            if (Running)
+            {
+                return;
+            }
+            if (!CheckIP())
+            {
+                txtbox.AppendText("\n\nChoose a valid IP!");
+                txtbox.ScrollToEnd();
+                return;
+            }
+            Running = true;
+            CheckIP();
+            if (Playlists.SelectedIndex == 0)
+            {
+                txtbox.AppendText("\n\nChoose a Playlist!");
+                txtbox.ScrollToEnd();
+                Running = false;
+                return;
+            }
+            MessageBoxResult result = MessageBox.Show("Are you Sure to delete the Playlists named \"" + Playlists.SelectedValue + "\"?\n\n THIS IS NOT UNDOABLE!!!", "Quest Song Exporter Playlist deleting", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            switch (result)
+            {
+                case MessageBoxResult.No:
+                    txtbox.AppendText("\n\nDeleting aborted");
+                    Running = false;
+                    txtbox.ScrollToEnd();
+                    return;
+            }
+            
+            String Config = exe + "\\tmp\\config.json";
+            ArrayList Songs = new ArrayList();
+
+
+            StreamReader reader = new StreamReader(@Config);
+            String line;
+            String end = "";
+            while ((line = reader.ReadLine()) != null)
+            {
+                end = end + line;
+            }
+            reader.Close();
+            var json = SimpleJSON.JSON.Parse(end);
+            String o;
+
+            int index2 = 0;
+            while ((o = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][index2]["SongID"]) != null)
+            {
+                Songs.Add(o);
+                index2++;
+                txtbox.AppendText("\n\n");
+            }
+            for (int i = 0; i < Songs.Count; i++)
+            {
+                if(!adb("shell rm -rR /sdcard/BMBFData/CustomSongs/" + Songs[i]))
+                {
+                    return;
+                }
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+                {
+                    txtbox.AppendText("\n\nDeleted " + Songs[i]);
+                    txtbox.ScrollToEnd();
+                }));
+            }
+            json["Config"]["Playlists"].Remove(Playlists.SelectedIndex + Lists - 1);
+
+            try
+            {
+                JObject on = JObject.Parse(json.ToString());
+                on.Property("SyncConfig").Remove();
+                on.Property("IsCommitted").Remove();
+                on.Property("BeatSaberVersion").Remove();
+
+                JProperty lrs = on.Property("Config");
+                on.Add(lrs.Value.Children<JProperty>());
+                lrs.Remove();
+
+                String FConfig = on.ToString();
+                File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
+
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+                {
+                    postChanges(exe + "\\tmp\\config.json");
+                }));
+                txtbox.AppendText("\n\nDeleted Playlist with all Data");
+            }
+            catch
+            {
+                txtbox.AppendText("\n\n\nAn error occured (Code: BMBF100). Check following:");
+                txtbox.AppendText("\n\n- Your Quest is on and BMBF opened");
+                txtbox.AppendText("\n\n- You put in the Quests IP right.");
+            }
+            Running = false;
+        }
+
 
         public void Move()
         {
@@ -115,9 +371,14 @@ namespace Quest_Song_Exporter
             IP = IP.Replace(":50000", "");
             IP = IP.Replace(":5000", "");
             IP = IP.Replace(":500", "");
-            IP = IP.Replace(":500", "");
             IP = IP.Replace(":50", "");
             IP = IP.Replace(":5", "");
+            IP = IP.Replace(":", "");
+            IP = IP.Replace("/", "");
+            IP = IP.Replace("https", "");
+            IP = IP.Replace("http", "");
+            IP = IP.Replace("Http", "");
+            IP = IP.Replace("Https", "");
 
             int count = 0;
             for (int i = 0; i < IP.Length; i++)
@@ -293,6 +554,7 @@ namespace Quest_Song_Exporter
 
         private void Backup(object sender, RoutedEventArgs e)
         {
+            StartBMBF();
             if (Running)
             {
                 return;
@@ -307,8 +569,7 @@ namespace Quest_Song_Exporter
             Running = true;
             try
             {
-                txtbox.Text = "Output:";
-                getQuestIP();
+                CheckIP();
                 if (dest == null)
                 {
                     dest = exe + "\\Playlists";
@@ -334,16 +595,20 @@ namespace Quest_Song_Exporter
                         BName.Text = BName.Text.Substring(0, f - 1) + BName.Text.Substring(f + 1, BName.Text.Length - f - 1);
                     }
                 }
+                
+                if (File.Exists(exe + "\\Playlists\\" + BName.Text + ".json"))
+                {
+                    txtbox.AppendText("\n\nThis Playlist Backup already exists!");
+                    Running = false;
+                    return;
+                }
 
                 txtbox.AppendText("\n\nBacking up Playlist to " + exe + "\\Playlists\\" + BName.Text + ".json");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
+                adb("pull /sdcard/BMBFData/Playlists/ \"" + exe + "\\Playlists\"");
 
-
-                if (!Directory.Exists(exe + "\\tmp"))
-                {
-                    Directory.CreateDirectory(exe + "\\tmp");
-                }
                 using (WebClient client = new WebClient())
                 {
                     client.DownloadFile("http://" + IP + ":50000/host/beatsaber/config", exe + "\\tmp\\Config.json");
@@ -358,11 +623,12 @@ namespace Quest_Song_Exporter
                 String line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    int Index = line.IndexOf("\"Mods\":[{", 0, line.Length);
+                    int Index = line.IndexOf("\"Mods\":[", 0, line.Length);
                     String Playlists = line.Substring(0, Index);
                     File.WriteAllText(exe + "\\Playlists\\" + BName.Text + ".json", Playlists);
                 }
                 txtbox.AppendText("\n\nBacked up Playlists to " + exe + "\\Playlists\\" + BName.Text + ".json");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
@@ -375,6 +641,25 @@ namespace Quest_Song_Exporter
             getBackups(exe + "\\Playlists");
             Running = false;
 
+        }
+
+
+        public void PushPNG(String Path)
+        {
+            String[] directories = Directory.GetFiles(Path);
+
+
+
+            for (int i = 0; i < directories.Length; i++)
+            {
+                if (directories[i].EndsWith(".png"))
+                {
+                    txtbox.AppendText("\n\nPushing " + directories[i] + " to Quest");
+                    adb("push \"" + directories[i] + "\" /sdcard/BMBFData/Playlists/");
+                    txtbox.ScrollToEnd();
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
+                }
+            }
         }
 
         public void postChanges(String Config)
@@ -390,6 +675,7 @@ namespace Quest_Song_Exporter
 
         private void Restore(object sender, RoutedEventArgs e)
         {
+            StartBMBF();
             if (Running)
             {
                 return;
@@ -410,8 +696,7 @@ namespace Quest_Song_Exporter
             {
 
 
-                getQuestIP();
-                txtbox.Text = "Output:";
+                CheckIP();
 
                 String Playlists;
                 if (dest == null)
@@ -472,10 +757,12 @@ namespace Quest_Song_Exporter
                 String FConfig = o.ToString();
                 File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
 
+                PushPNG(exe + "\\Playlists\\Playlists");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
                     postChanges(exe + "\\tmp\\config.json");
                 }));
                 txtbox.AppendText("\n\nRestored old Playlists.");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
             } catch
             {
@@ -601,65 +888,12 @@ namespace Quest_Song_Exporter
             return;
         }
 
-        public void CopySongs(String Desktop)
+        public void input(String Path, String dest)
         {
-            String User = System.Environment.GetEnvironmentVariable("USERPROFILE");
-            if (copied)
+            if(Running)
             {
                 return;
             }
-            ProcessStartInfo s = new ProcessStartInfo();
-            s.CreateNoWindow = false;
-            s.UseShellExecute = false;
-            s.FileName = "adb.exe";
-            s.WindowStyle = ProcessWindowStyle.Minimized;
-            s.Arguments = "pull /sdcard/BMBFData/CustomSongs/ \"" + Desktop + "\"";
-            try
-            {
-                // Start the process with the info we specified.
-                // Call WaitForExit and then the using statement will close.
-                using (Process exeProcess = Process.Start(s))
-                {
-                    exeProcess.WaitForExit();
-                    copied = true;
-                }
-            }
-            catch
-            {
-                
-                if (copied)
-                {
-                    return;
-                }
-                ProcessStartInfo se = new ProcessStartInfo();
-                se.CreateNoWindow = false;
-                se.UseShellExecute = false;
-                se.FileName = User + "\\AppData\\Roaming\\SideQuest\\platform-tools\\adb.exe";
-                se.WindowStyle = ProcessWindowStyle.Minimized;
-                se.Arguments = "pull /sdcard/BMBFData/CustomSongs/ \"" + Desktop + "\"";
-                try
-                {
-                    // Start the process with the info we specified.
-                    // Call WaitForExit and then the using statement will close.
-                    using (Process exeProcess = Process.Start(se))
-                    {
-                        exeProcess.WaitForExit();
-                        copied = true;
-                    }
-                } catch
-                {
-                    // Log error.
-                    txtbox.AppendText("\n\n\nAn Error Occured (Code: ADB100). Check following");
-                    txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
-                    txtbox.AppendText("\n\n- You have adb installed.");
-                }
-                    
-            }
-        }
-
-        public void input(String Path, String dest)
-        {
-
             ArrayList list = new ArrayList();
             ArrayList content = new ArrayList();
             ArrayList over = new ArrayList();
@@ -673,7 +907,14 @@ namespace Quest_Song_Exporter
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                CopySongs(exe + "\\tmp");
+                if (!copied)
+                {
+                    if(!adb("pull /sdcard/BMBFData/CustomSongs/ \"" + exe + "\\tmp\""))
+                    {
+                        return;
+                    }
+                    copied = true;
+                }
                 if (Directory.Exists(exe + "\\tmp\\CustomSongs"))
                 {
                     Source = exe + "\\tmp\\CustomSongs";
@@ -681,6 +922,7 @@ namespace Quest_Song_Exporter
                 {
                     Source = exe + "\\tmp";
                 }
+                txtbox.AppendText("\n\nZipping Songs");
                 
             }
 
@@ -846,28 +1088,6 @@ namespace Quest_Song_Exporter
 
         }
 
-        public String Strings(String line, int StartIndex)
-        {
-            /*int count = 0;
-            String Name = "";
-            for (int n = 0; n < line.Length; n++)
-            {
-                if (count == StartIndex)
-                {
-
-                    Name = Name + line.Substring(n, 1);
-                }
-
-                if (line.Substring(n, 1).Equals("\""))
-                {
-                    count++;
-                }
-            }
-            */
-            return "xD";
-            
-        }
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             if (Running)
@@ -1014,6 +1234,10 @@ namespace Quest_Song_Exporter
 
         public void IndexSongs(String Path, String dest, Boolean Zips)
         {
+            if(Running)
+            {
+                return;
+            }
             String zip = "";
             ArrayList list = new ArrayList();
             ArrayList Folder = new ArrayList();
@@ -1037,7 +1261,14 @@ namespace Quest_Song_Exporter
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-                CopySongs(exe + "\\tmp");
+                if(!copied)
+                {
+                    if(!adb("pull /sdcard/BMBFData/CustomSongs/ \"" + exe + "\\tmp\""))
+                    {
+                        return;
+                    }
+                    copied = true;
+                }
                 if (Directory.Exists(exe + "\\tmp\\CustomSongs"))
                 {
                     Source = exe + "\\tmp\\CustomSongs";
@@ -1048,7 +1279,9 @@ namespace Quest_Song_Exporter
                 }
 
             }
-            
+
+            txtbox.AppendText("\n\nZipping Songs");
+
             string[] directories = Directory.GetDirectories(Source);
 
 

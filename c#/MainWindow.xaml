@@ -9,15 +9,15 @@
         ResizeMode="CanMinimize"
         WindowStyle="None"
         MouseMove="Drag"
-        Title="Quest Song Exporter" Height="663" Width="510" Background="#FF282828" >
+        Title="Quest Song Exporter" Height="789" Width="510" Background="#FF282828" >
     <Grid>
 
         <Grid.Background>
-            <ImageBrush ImageSource="App17.png" Stretch="UniformToFill"/>
+            <ImageBrush ImageSource="App19.png" Stretch="UniformToFill"/>
         </Grid.Background>
 
         <Button MouseEnter="noDrag" MouseLeave="doDrag" x:Name="sr" FontFamily="lucida console" Opacity="0.9" Click="Button_Click" Content="Choose Source Folder" HorizontalAlignment="Left" Margin="290,80,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
-        <TextBox MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" Opacity="0.8" IsReadOnly="True" x:Name="txtbox" HorizontalAlignment="Left" Height="620.2" Margin="10,29.6,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="275" Background="#FF494949" Foreground="#FFA6A6A6" BorderBrush="#FFD30000"/>
+        <TextBox MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" Opacity="0.8" IsReadOnly="True" x:Name="txtbox" HorizontalAlignment="Left" Height="750" Margin="10,30,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="275" Background="#FF494949" Foreground="#FFA6A6A6" BorderBrush="#FFD30000"/>
         <Button MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" Opacity="0.8" Click="Button_Click_1" Content="Choose Destination Folder" HorizontalAlignment="Left" Margin="290,204,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
         <Button MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" Opacity="0.8" Click="Button_Click_2" Content="Start" HorizontalAlignment="Left" Margin="292.865,435.85,0,0" VerticalAlignment="Top" Width="200" Height="33" RenderTransformOrigin="-0.858,0.891" Background="#FF005654" Foreground="#FFF3F3F3" BorderBrush="#FFB94747"/>
         <TextBox MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" Opacity="0.9" IsReadOnly="True" x:Name="txtboxs" HorizontalAlignment="Left" Height="68.2" Margin="290,118,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="#FFA6A6A6"/>
@@ -44,6 +44,9 @@
         <TextBox LostFocus="BackupNameCheck" FontFamily="lucida console" GotFocus="ClearTextN" MouseEnter="noDrag" MouseLeave="doDrag" Opacity="0.8" x:Name="BName" HorizontalAlignment="Left" Height="23" Margin="292.865,509.85,0,0" TextWrapping="Wrap" Text="Backup Name" VerticalAlignment="Top" Width="200" Background="#FF494949" BorderBrush="#FFD30000" Foreground="White"/>
         <ComboBox Opacity="0.8" MouseEnter="noDrag" MouseLeave="doDrag" x:Name="Backups" HorizontalAlignment="Left" Margin="292.865,589.84,0,0" VerticalAlignment="Top" Width="200" BorderBrush="#FFB94747" Background="#FF005654" Foreground="Black"/>
         <CheckBox Checked="Check" MouseEnter="noDrag" MouseLeave="doDrag" FontFamily="lucida console" x:Name="zips" Content="only check zips" HorizontalAlignment="Left" Margin="328.29,344.898,0,0" VerticalAlignment="Top" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3"/>
+        <ComboBox Opacity="0.8" MouseEnter="noDrag" MouseLeave="doDrag" x:Name="Playlists" HorizontalAlignment="Left" Margin="293,720,0,0" VerticalAlignment="Top" Width="200" BorderBrush="#FFB94747" Background="#FF005654" Foreground="Black"/>
+        <Button FontFamily="lucida console" MouseEnter="noDrag" MouseLeave="doDrag" Opacity="0.8" Click="DeleteP"  Content="Delete selected Playlist" HorizontalAlignment="Left" Margin="291,747,0,0" VerticalAlignment="Top" Width="200" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3" Height="33" RenderTransformOrigin="0.511,1.394"/>
+        <Button FontFamily="lucida console" MouseEnter="noDrag" MouseLeave="doDrag" Opacity="0.8" Click="getPlaylists" Content="Load Playlists" HorizontalAlignment="Left" Margin="291,678,0,0" VerticalAlignment="Top" Width="200" Background="#FF005654" BorderBrush="#FFB94747" Foreground="#FFF3F3F3" Height="33"/>
 
     </Grid>
 </Window>
