@@ -38,7 +38,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 10;
-        int PatchV = 0;
+        int PatchV = 1;
         Boolean Preview = false;
 
         String IP = "";
@@ -1355,42 +1355,47 @@ namespace Quest_Song_Exporter
 
                     /////////Requirements
 
-                    Name = json["_difficultyBeatmapSets"][0]["_difficultyBeatmaps"][0]["_customData"]["_requirements"].ToString();
-
-                    if(Name.Contains("GameSaber"))
+                    for (int d = 0; d < 5; d++)
                     {
-                        if (!requierments.Contains("GameSaber, "))
+                        for (int s = 0; s < 5; s++)
                         {
-                            requierments.Add("GameSaber, ");
+                            Name = json["_difficultyBeatmapSets"][d]["_difficultyBeatmaps"][s]["_customData"]["_requirements"].ToString();
+                            if (Name.Contains("GameSaber"))
+                            {
+                                if (!requierments.Contains("GameSaber, "))
+                                {
+                                    requierments.Add("GameSaber, ");
+                                }
+                            }
+
+
+                            if (Name.Contains("Mapping Extensions"))
+                            {
+                                if (!requierments.Contains("Mapping Extensions, "))
+                                {
+                                    requierments.Add("Mapping Extensions, ");
+                                }
+
+                            }
+
+                            if (Name.Contains("Noodle Extensions"))
+                            {
+                                if (!requierments.Contains("Noodle Extensions, "))
+                                {
+                                    requierments.Add("Noodle Extensions, ");
+                                }
+
+                            }
+
+                            if (Name.Contains("Chroma"))
+                            {
+                                if (!requierments.Contains("Chroma, "))
+                                {
+                                    requierments.Add("Chroma, ");
+                                }
+
+                            }
                         }
-                    }
-                        
-
-                    if (Name.Contains("Mapping Extensions"))
-                    {
-                        if (!requierments.Contains("Mapping Extensions, "))
-                        {
-                            requierments.Add("Mapping Extensions, ");
-                        }
-
-                    }
-
-                    if (Name.Contains("Noodle Extensions"))
-                    {
-                        if (!requierments.Contains("Noodle Extensions, "))
-                        {
-                            requierments.Add("Noodle Extensions, ");
-                        }
-
-                    }
-
-                    if (Name.Contains("Chroma"))
-                    {
-                        if (!requierments.Contains("Chroma, "))
-                        {
-                            requierments.Add("Chroma, ");
-                        }
-
                     }
 
                     /////////Song Sub Name
