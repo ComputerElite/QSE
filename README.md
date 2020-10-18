@@ -1,10 +1,10 @@
-# QSE (Quest Song exporter)
-It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration
+# QSU (Quest Song Utilities)
+It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration. One Click Install via BeatSaver has also been added. (The tool was originally named QSE Quest Song Exporter but got renamed due to these changes)
 
 # How-to (Quest)
 ## C# version (GUI):
 ### Save Songs
-Start Quest Song Exporter.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)" ([adb](https://developer.android.com/studio/releases/platform-tools) or [SideQuest](https://sidequestvr.com/setup-howto) required). Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
+Start Quest Song Utilities.exe. Connect your Quest to you PC. Check "Auto Mode (Quest only)" ([adb](https://developer.android.com/studio/releases/platform-tools) or [SideQuest](https://sidequestvr.com/setup-howto) required). Then click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 <br/>
 <br/>
 ### Make Song List
@@ -36,7 +36,7 @@ Connect your Quest to you PC. Then copy all folders from "sd card\BMBFData\Custo
 # How-to (PC/Songs are already on PC)
 ## C# version (GUI):
 ### Save Songs
-Start Quest Song Exporter.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
+Start Quest Song Utilities.exe . Click choose Song Folder and browse for the directory where your Song Folders are located (probably at C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels). Do the same with your destination directory. Click start and wait a few minutes (about 1 - 6). After it has finished it'll let you know how many Songs it zipped.
 ### Make Song List
 Do everything as above and check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
 
