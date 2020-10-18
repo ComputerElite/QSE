@@ -23,7 +23,10 @@ Enter Your Quests IP and then choose the Backup in the drop down menu. Then pres
 Enter your Quests IP nad click "Load Playlists". Then choose the Playlist you want to delete and click "Delete selected Playlists". 
 </br></br>
 #### **THIS IS NOT UNDOABLE**
+</br>
 
+### How to enable OneClick Install
+Connect your Quest to your PC and open "Quest Song Utilities.exe" everytime you install a Update/move the files you'll get a message by User Account control. Click yes to enable one click install with the links qsu://[SongKey] e. g. [qsu://abcd](qsu://abcd). click "Enable BeatSaver oneClick install" and again press yes on everything that appears. After that you will be able to use OneClick install links like [beatsaver:abcd](beatsaver:abcd) to install Songs to your quest.
 
 <br/>
 <br/>
