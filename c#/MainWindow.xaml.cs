@@ -40,7 +40,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 11;
-        int PatchV = 1;
+        int PatchV = 2;
         Boolean Preview = false;
 
         String IP = "";
@@ -151,7 +151,7 @@ namespace Quest_Song_Exporter
             {
                 File.Delete(exe + "\\QSE_Update.exe");
             }
-            //Update();
+            Update();
             Move();
             
             Backups.SelectedIndex = 0;
@@ -222,7 +222,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\nCustom Protocol \"qse\" installed");
             } catch
             {
-                txtbox.AppendText("\n\nRegistry was unable to change... no Custom protovol to launch the program. (Feature missed: One Click Install)");
+                txtbox.AppendText("\n\nRegistry was unable to change... no Custom protocol to launch the program. (Feature missed: One Click Install)");
             }
             
         }
@@ -250,7 +250,7 @@ namespace Quest_Song_Exporter
                 }
                 catch
                 {
-                    txtbox.AppendText("\n\nRegistry was unable to change... no Custom protovol to launch the program. (Feature missed: one Click install via BeatSaver)");
+                    txtbox.AppendText("\n\nRegistry was unable to change... no Custom protocol disabled.");
                 }
                 InstalledOneClick.Content = "Disable BeatSaver OneClick install";
                 OneClick = true;
@@ -320,6 +320,10 @@ namespace Quest_Song_Exporter
             }
             IP = FIP;
             Quest.Text = FIP;
+            if(IP == "")
+            {
+                Quest.Text = "Quest IP";
+            }
 
         }
 
