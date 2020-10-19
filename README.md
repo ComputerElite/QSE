@@ -1,5 +1,5 @@
 # QSU (Quest Song Utilities)
-It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration. One Click Install via BeatSaver has also been added. (The tool was originally named QSE Quest Song Exporter but got renamed due to these changes)
+It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration. OneClick Install via BeatSaver has also been added. (The tool was originally named QSE Quest Song Exporter but got renamed due to these changes)
 
 # How-to (Quest)
 ## C# version (GUI):
