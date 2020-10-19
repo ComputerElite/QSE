@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json.Linq;
+using SimpleJSON;
 using System;
 using System.Collections;   
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -37,28 +39,95 @@ namespace Quest_Song_Exporter
     {
 
         int MajorV = 3;
-        int MinorV = 10;
-        int PatchV = 1;
+        int MinorV = 11;
+        int PatchV = 0;
         Boolean Preview = false;
 
         String IP = "";
         String path;
         String dest;
+        String keyName = "";
         Boolean debug = false;
         Boolean automode = false;
         Boolean copied = false;
         Boolean draggable = true;
         Boolean Running = false;
-        String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
+        Boolean OneClick = false;
+        String exe = AppDomain.CurrentDomain.BaseDirectory;
         ArrayList P = new ArrayList();
         int Lists = 0;
+        String args = "";
 
+        public async Task KeyAsync(String key)
+        {
+            StartBMBF();
+            QuestIP();
+
+            args = key;
+            args = args.Replace("qsu://", "");
+            args = args.Replace("beatsaver://", "");
+            args = args.Replace("/", "");
+            Uri keys = new Uri("https://beatsaver.com/api/download/key/" + args);
+            WebClient client = new WebClient();
+            client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                txtbox.AppendText("\n\nDownloading BeatMap " + args);
+            }));
+            try
+            {
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate{ }));
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+                {
+                    client.DownloadFileCompleted += new AsyncCompletedEventHandler(finished_download);
+                    client.DownloadFileAsync(keys, exe + "\\tmp\\Song.zip");
+                }));
+            }
+            catch
+            {
+                txtbox.AppendText("\n\nAn Error Occured");
+                return;
+            }
+        }
+
+        public void upload(String path)
+        {
+            getQuestIP();
+
+            WebClient client = new WebClient();
+
+            txtbox.AppendText("\n\nUploading " + path + " to BMBF");
+            try
+            {
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+                    client.UploadFile("http://" + IP + ":50000/host/beatsaber/upload?overwrite", path);
+                }));
+                
+            } catch
+            {
+                txtbox.AppendText("\n\nA error Occured (Code: BMBF100)");
+            }
+            try
+            {
+                Sync();
+                txtbox.AppendText("\n\nSong " + keyName + " (" + args + ") was synced to your Quest.");
+            } catch
+            {
+                txtbox.AppendText("\n\nCouldn't sync with BeatSaber. Needs to be done manually.");
+            }
+        }
+
+        public void finished_download(object sender, AsyncCompletedEventArgs e)
+        {
+            txtbox.AppendText("\nDownloaded BeatMap " + args + "\n");
+            unzip(exe + "\\tmp", true);
+            upload(exe + "\\tmp\\Song.zip");
+        }
 
         public MainWindow()
         {
             InitializeComponent();
             UpdateB.Visibility = Visibility.Hidden;
-            exe = exe.Replace("\\Quest Song Exporter.exe", "");
             txtbox.Text = "Output:\n";
             if(debug)
             {
@@ -82,7 +151,7 @@ namespace Quest_Song_Exporter
             {
                 File.Delete(exe + "\\QSE_Update.exe");
             }
-            Update();
+            //Update();
             Move();
             
             Backups.SelectedIndex = 0;
@@ -90,7 +159,155 @@ namespace Quest_Song_Exporter
 
             Playlists.Items.Add("Load Playlists!");
             Playlists.SelectedIndex = 0;
-            StartBMBF();
+
+            QuestIP();
+            checks();
+        }
+
+        public void checks()
+        {
+            if (!File.Exists(exe + "\\Info.json"))
+            {
+                change_reg();
+                return;
+            }
+
+            StreamReader r = new StreamReader(@exe + "\\Info.json");
+            String Info = r.ReadToEnd();
+            var json = JSON.Parse(Info);
+
+            if(!json["Version"].ToString().Equals("\"" + MajorV.ToString() + MinorV.ToString() + PatchV.ToString() + "\""))
+            {
+                change_reg();
+            } else if (!json["NotFirstRun"].AsBool)
+            {
+                change_reg();
+            } else if(!json["Location"].Equals(System.Reflection.Assembly.GetEntryAssembly().Location))
+            {
+                change_reg();
+            }
+
+            OneClick = json["OneClickInstalled"].AsBool;
+            if(OneClick)
+            {
+                InstalledOneClick.Content = "Disable BeatSaver OneClick install";
+            } else
+            {
+                InstalledOneClick.Content = "Enable BeatSaver OneClick install";
+            }
+        }
+
+        public void saveInfo()
+        {
+            var json = JSON.Parse("{\"Version\":\"1\", \"NotFirstRun\": false}");
+            json["Version"] = MajorV.ToString() + MinorV.ToString() + PatchV.ToString();
+            json["NotFirstRun"] = true;
+            json["Location"] = System.Reflection.Assembly.GetEntryAssembly().Location;
+            json["OneClickInstalled"] = OneClick;
+            File.WriteAllText(exe + "\\Info.json", json.ToString());
+        }
+
+        public void change_reg()
+        {
+            txtbox.AppendText("\n\nChanging Registry to allow Custom protocols");
+            String regFile = "Windows Registry Editor Version 5.00\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"URL: qsu\"\n\"URL Protocol\"=\"qsu\"\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + "\"\n\n[HKEY_CLASSES_ROOT\\qsu\\shell]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open\\command]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + " \\\"%1\\\"\"";
+            File.WriteAllText(exe + "\\registry.reg", regFile);
+            try
+            {
+                Process.Start(exe + "\\registry.reg");
+            } catch
+            {
+                txtbox.AppendText("\n\nRegistry was unable to change... no Custom protovol to launch the program. (Feature missed: One Click Install)");
+            }
+            
+        }
+
+        public void enable_BeatSaver(object sender, RoutedEventArgs e)
+        {
+            if(!OneClick)
+            {
+                MessageBoxResult result = MessageBox.Show("This will disable OneClick Install via Mod Assistent.\nDo you wish to continue?", "Quest Song Utilities OneClick BeatSaver", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                switch (result)
+                {
+                    case MessageBoxResult.No:
+                        txtbox.AppendText("\n\nOneClick Install enabeling aborted");
+                        Running = false;
+                        txtbox.ScrollToEnd();
+                        return;
+                }
+                txtbox.AppendText("\n\nChanging Registry to enable one Click Custom protocols");
+                String regFile = "Windows Registry Editor Version 5.00\n\n[HKEY_CLASSES_ROOT\\beatsaver]\n@=\"URL: beatsaver\"\n\"URL Protocol\"=\"beatsaver\"\n\n[HKEY_CLASSES_ROOT\\beatsaver]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + "\"\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell]\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell\\open]\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell\\open\\command]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + " \\\"%1\\\"\"";
+                File.WriteAllText(exe + "\\registry.reg", regFile);
+                try
+                {
+                    Process.Start(exe + "\\registry.reg");
+                }
+                catch
+                {
+                    txtbox.AppendText("\n\nRegistry was unable to change... no Custom protovol to launch the program. (Feature missed: one Click install via BeatSaver)");
+                }
+                InstalledOneClick.Content = "Disable BeatSaver OneClick install";
+                OneClick = true;
+            } else
+            {
+                MessageBoxResult result = MessageBox.Show("This will disable OneClick Install via Quest Song Exporter.\nDo you wish to continue?", "Quest Song Utilities OneClick BeatSaver", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                switch (result)
+                {
+                    case MessageBoxResult.No:
+                        txtbox.AppendText("\n\nOneClick disabeling enabeling aborted");
+                        Running = false;
+                        txtbox.ScrollToEnd();
+                        return;
+                }
+                txtbox.AppendText("\n\nChanging Registry to disable Click Custom protocols");
+                String regFile = "Windows Registry Editor Version 5.00\n\n[-HKEY_CLASSES_ROOT\\beatsaver]";
+                File.WriteAllText(exe + "\\registry.reg", regFile);
+                try
+                {
+                    Process.Start(exe + "\\registry.reg");
+                }
+                catch
+                {
+                    txtbox.AppendText("\n\nRegistry was unable to change.");
+                }
+                InstalledOneClick.Content = "Enable BeatSaver OneClick install";
+                OneClick = false;
+            }
+            
+        }
+
+        public void Sync()
+        {
+            System.Threading.Thread.Sleep(2000);
+            using (WebClient client = new WebClient())
+            {
+                client.QueryString.Add("foo", "foo");
+                client.UploadValues("http://" + IP + ":50000/host/beatsaber/commitconfig", "POST", client.QueryString);
+            }
+        }
+
+        public void QuestIP()
+        {
+            String IPS = adbS("shell ifconfig wlan0");
+            int Index = IPS.IndexOf("inet addr:");
+            Boolean space = false;
+            String FIP = "";
+            for (int i = 0; i < IPS.Length; i++)
+            {
+                if (i > (Index + 9) && i < (Index + 9 + 16))
+                {
+                    if (IPS.Substring(i, 1) == " ")
+                    {
+                        space = true;
+                    }
+                    if (!space)
+                    {
+                        FIP = FIP + IPS.Substring(i, 1);
+                    }
+                }
+            }
+            IP = FIP;
+            Quest.Text = FIP;
         }
 
         public void StartBMBF()
@@ -148,6 +365,60 @@ namespace Quest_Song_Exporter
                 }
             }
             return false;
+        }
+
+        public String adbS(String Argument)
+        {
+            String User = System.Environment.GetEnvironmentVariable("USERPROFILE");
+            ProcessStartInfo s = new ProcessStartInfo();
+            s.CreateNoWindow = false;
+            s.UseShellExecute = false;
+            s.FileName = "adb.exe";
+            s.WindowStyle = ProcessWindowStyle.Minimized;
+            s.RedirectStandardOutput = true;
+            s.Arguments = Argument;
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(s))
+                {
+                    String IPS = exeProcess.StandardOutput.ReadToEnd();
+                    exeProcess.WaitForExit();
+                    return IPS;
+                }
+            }
+            catch
+            {
+
+                ProcessStartInfo se = new ProcessStartInfo();
+                se.CreateNoWindow = false;
+                se.UseShellExecute = false;
+                se.FileName = User + "\\AppData\\Roaming\\SideQuest\\platform-tools\\adb.exe";
+                se.WindowStyle = ProcessWindowStyle.Minimized;
+                se.RedirectStandardOutput = true;
+                se.Arguments = Argument;
+                try
+                {
+                    // Start the process with the info we specified.
+                    // Call WaitForExit and then the using statement will close.
+                    using (Process exeProcess = Process.Start(se))
+                    {
+                        String IPS = exeProcess.StandardOutput.ReadToEnd();
+                        exeProcess.WaitForExit();
+                        return IPS;
+                        
+                    }
+                }
+                catch
+                {
+                    // Log error.
+                    txtbox.AppendText("\n\n\nAn error Occured (Code: ADB100). Check following");
+                    txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
+                    txtbox.AppendText("\n\n- You have adb installed.");
+                }
+            }
+            return "";
         }
 
         public void getPlaylists(object sender, RoutedEventArgs e)
@@ -269,7 +540,7 @@ namespace Quest_Song_Exporter
                 Running = false;
                 return;
             }
-            MessageBoxResult result = MessageBox.Show("Are you Sure to delete the Playlists named \"" + Playlists.SelectedValue + "\"?\n\n THIS IS NOT UNDOABLE!!!", "Quest Song Exporter Playlist deleting", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult result = MessageBox.Show("Are you Sure to delete the Playlists named \"" + Playlists.SelectedValue + "\"?\n\n THIS IS NOT UNDOABLE!!!", "Quest Song Utilities Playlist deleting", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             switch (result)
             {
                 case MessageBoxResult.No:
@@ -509,18 +780,19 @@ namespace Quest_Song_Exporter
         {
             using (WebClient client = new WebClient())
             {
-                client.DownloadFile("https://github.com/ComputerElite/QSE/raw/master/QSE_Update.exe", exe + "\\QSE_Update.exe");
+                client.DownloadFile("https://github.com/ComputerElite/QSE/raw/master/QSE_Update.exe", exe + "\\QSU_Update.exe");
             }
-            //Process.Start(exe + "\\QSE_Update.exe");
+            //Process.Start(exe + "\\QSU_Update.exe");
             ProcessStartInfo s = new ProcessStartInfo();
             s.CreateNoWindow = false;
             s.UseShellExecute = false;
-            s.FileName = exe + "\\QSE_Update.exe";
+            s.FileName = exe + "\\QSU_Update.exe";
             try
             {
                 using (Process exeProcess = Process.Start(s))
                 {
                 }
+                saveInfo();
                 this.Close();
             }
             catch
@@ -845,11 +1117,12 @@ namespace Quest_Song_Exporter
             if(Directory.Exists(exe + "\\tmp")) {
                 Directory.Delete(exe + "\\tmp", true);
             }
+            saveInfo();
             this.Close();
         }
 
 
-            private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             if(automode)
             {
@@ -1053,10 +1326,10 @@ namespace Quest_Song_Exporter
             txtbox.AppendText("\n");
             if (exported == 0 && (bool)auto.IsChecked)
             {
-                txtbox.AppendText("\nerror (Code: QSE110). No Songs were zipped.");
+                txtbox.AppendText("\nerror (Code: QSU110). No Songs were zipped.");
             } else if(exported == 0 && !(bool)auto.IsChecked)
             {
-                txtbox.AppendText("\nerror (Code: QSE100). No Songs were zipped.");
+                txtbox.AppendText("\nerror (Code: QSU100). No Songs were zipped.");
             }
             else
             {
@@ -1182,11 +1455,11 @@ namespace Quest_Song_Exporter
                 //Index Songs
                 if((bool)zips.IsChecked)
                 {
-                    unzip(path);
+                    unzip(path, false);
                     
                 } else
                 {
-                    IndexSongs(path, dest, false);
+                    IndexSongs(path, dest, false, false);
                 }
                 
             }
@@ -1196,7 +1469,7 @@ namespace Quest_Song_Exporter
             }
         }
 
-        public void unzip(String Path)
+        public void unzip(String Path, Boolean download)
         {
             int end;
             String f;
@@ -1228,11 +1501,11 @@ namespace Quest_Song_Exporter
 
             }
             txtbox.AppendText("\nUnziping complete.");
-            IndexSongs(dest, Path, true);
+            IndexSongs(dest, Path, true, download);
         }
 
 
-        public void IndexSongs(String Path, String dest, Boolean Zips)
+        public void IndexSongs(String Path, String dest, Boolean Zips, Boolean download)
         {
             if(Running)
             {
@@ -1279,8 +1552,6 @@ namespace Quest_Song_Exporter
                 }
 
             }
-
-            txtbox.AppendText("\n\nZipping Songs");
 
             string[] directories = Directory.GetDirectories(Source);
 
@@ -1332,6 +1603,10 @@ namespace Quest_Song_Exporter
                     }
 
                     list.Add(Name);
+                    if(download)
+                    {
+                        keyName = Name;
+                    }
                     txtbox.AppendText("\nSong Name: " + Name);
 
                     if (Zips)
@@ -1517,11 +1792,21 @@ namespace Quest_Song_Exporter
                 txt.Add("");
             }
             String[] output = (string[])txt.ToArray(typeof(string));
-            File.WriteAllLines(dest + "\\" + "Songs.txt", output);
+            if(!download)
+            {
+                File.WriteAllLines(dest + "\\" + "Songs.txt", output);
+                txtbox.AppendText("\n");
+                txtbox.AppendText("\n");
+                txtbox.AppendText("Finished! Listed " + exported + " songs in Songs.txt");
+            } else
+            {
+                txtbox.AppendText("\n");
+                txtbox.AppendText("\n");
+                txtbox.AppendText("Finished! See metadata of BeatMap " + args + " above.");
+            }
+            
 
-            txtbox.AppendText("\n");
-            txtbox.AppendText("\n");
-            txtbox.AppendText("Finished! Listed " + exported + " songs in Songs.txt");
+            
             if(debug)
             {
                 txtbox.AppendText("\n\n");
