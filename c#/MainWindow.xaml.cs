@@ -40,7 +40,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 11;
-        int PatchV = 0;
+        int PatchV = 1;
         Boolean Preview = false;
 
         String IP = "";
@@ -160,8 +160,8 @@ namespace Quest_Song_Exporter
             Playlists.Items.Add("Load Playlists!");
             Playlists.SelectedIndex = 0;
 
-            QuestIP();
             checks();
+            QuestIP();
         }
 
         public void checks()
@@ -187,6 +187,8 @@ namespace Quest_Song_Exporter
                 change_reg();
             }
 
+            Quest.Text = json["IP"];
+
             OneClick = json["OneClickInstalled"].AsBool;
             if(OneClick)
             {
@@ -199,11 +201,13 @@ namespace Quest_Song_Exporter
 
         public void saveInfo()
         {
+            getQuestIP();
             var json = JSON.Parse("{\"Version\":\"1\", \"NotFirstRun\": false}");
             json["Version"] = MajorV.ToString() + MinorV.ToString() + PatchV.ToString();
             json["NotFirstRun"] = true;
             json["Location"] = System.Reflection.Assembly.GetEntryAssembly().Location;
             json["OneClickInstalled"] = OneClick;
+            json["IP"] = IP;
             File.WriteAllText(exe + "\\Info.json", json.ToString());
         }
 
@@ -215,6 +219,7 @@ namespace Quest_Song_Exporter
             try
             {
                 Process.Start(exe + "\\registry.reg");
+                txtbox.AppendText("\n\nCustom Protocol \"qse\" installed");
             } catch
             {
                 txtbox.AppendText("\n\nRegistry was unable to change... no Custom protovol to launch the program. (Feature missed: One Click Install)");
@@ -241,6 +246,7 @@ namespace Quest_Song_Exporter
                 try
                 {
                     Process.Start(exe + "\\registry.reg");
+                    txtbox.AppendText("\n\nOneClick Install via BeatSaver enabled");
                 }
                 catch
                 {
@@ -265,6 +271,7 @@ namespace Quest_Song_Exporter
                 try
                 {
                     Process.Start(exe + "\\registry.reg");
+                    txtbox.AppendText("\n\nOneClick Install via BeatSaver disabled");
                 }
                 catch
                 {
@@ -306,8 +313,14 @@ namespace Quest_Song_Exporter
                     }
                 }
             }
+
+            if (FIP == "")
+            {
+                return;
+            }
             IP = FIP;
             Quest.Text = FIP;
+
         }
 
         public void StartBMBF()
