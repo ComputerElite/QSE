@@ -40,7 +40,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 11;
-        int PatchV = 2;
+        int PatchV = 3;
         Boolean Preview = false;
 
         String IP = "";
@@ -53,6 +53,7 @@ namespace Quest_Song_Exporter
         Boolean draggable = true;
         Boolean Running = false;
         Boolean OneClick = false;
+        Boolean OneClickQSU = false;
         String exe = AppDomain.CurrentDomain.BaseDirectory;
         ArrayList P = new ArrayList();
         int Lists = 0;
@@ -168,7 +169,7 @@ namespace Quest_Song_Exporter
         {
             if (!File.Exists(exe + "\\Info.json"))
             {
-                change_reg();
+                txtbox.AppendText("\n\nIt's suggested to enable custom protocols by clicking the corresponding buttons.");
                 return;
             }
 
@@ -178,24 +179,33 @@ namespace Quest_Song_Exporter
 
             if(!json["Version"].ToString().Equals("\"" + MajorV.ToString() + MinorV.ToString() + PatchV.ToString() + "\""))
             {
-                change_reg();
+                txtbox.AppendText("\n\nIt's suggested to enable/update custom protocols by clicking the corresponding buttons.");
             } else if (!json["NotFirstRun"].AsBool)
             {
-                change_reg();
+                txtbox.AppendText("\n\nIt's suggested to enable/update custom protocols by clicking the corresponding buttons.");
             } else if(!json["Location"].Equals(System.Reflection.Assembly.GetEntryAssembly().Location))
             {
-                change_reg();
+                txtbox.AppendText("\n\nIt's suggested to enable/update custom protocols by clicking the corresponding buttons.");
             }
 
             Quest.Text = json["IP"];
 
             OneClick = json["OneClickInstalled"].AsBool;
-            if(OneClick)
+            OneClickQSU = json["OneClickInstalledQSU"].AsBool;
+            if (OneClick)
             {
                 InstalledOneClick.Content = "Disable BeatSaver OneClick install";
             } else
             {
                 InstalledOneClick.Content = "Enable BeatSaver OneClick install";
+            }
+            if (OneClickQSU)
+            {
+                InstalledOneClickQ.Content = "Disable QSU OneClick install";
+            }
+            else
+            {
+                InstalledOneClickQ.Content = "Enable QSU OneClick install";
             }
         }
 
@@ -207,24 +217,58 @@ namespace Quest_Song_Exporter
             json["NotFirstRun"] = true;
             json["Location"] = System.Reflection.Assembly.GetEntryAssembly().Location;
             json["OneClickInstalled"] = OneClick;
+            json["OneClickInstalledQSU"] = OneClickQSU;
             json["IP"] = IP;
             File.WriteAllText(exe + "\\Info.json", json.ToString());
         }
 
-        public void change_reg()
+        public void enable_QSU(object sender, RoutedEventArgs e)
         {
-            txtbox.AppendText("\n\nChanging Registry to allow Custom protocols");
-            String regFile = "Windows Registry Editor Version 5.00\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"URL: qsu\"\n\"URL Protocol\"=\"qsu\"\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + "\"\n\n[HKEY_CLASSES_ROOT\\qsu\\shell]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open\\command]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + " \\\"%1\\\"\"";
-            File.WriteAllText(exe + "\\registry.reg", regFile);
-            try
+            if (!OneClickQSU)
             {
-                Process.Start(exe + "\\registry.reg");
-                txtbox.AppendText("\n\nCustom Protocol \"qse\" installed");
-            } catch
-            {
-                txtbox.AppendText("\n\nRegistry was unable to change... no Custom protocol to launch the program. (Feature missed: One Click Install)");
+                txtbox.AppendText("\n\nChanging Registry to enable QSU Custom protocols via QSU");
+                String regFile = "Windows Registry Editor Version 5.00\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"URL: qsu\"\n\"URL Protocol\"=\"qsu\"\n\n[HKEY_CLASSES_ROOT\\qsu]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + "\"\n\n[HKEY_CLASSES_ROOT\\qsu\\shell]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open]\n\n[HKEY_CLASSES_ROOT\\qsu\\shell\\open\\command]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + " \\\"%1\\\"\"";
+                File.WriteAllText(exe + "\\registry.reg", regFile);
+                try
+                {
+                    Process.Start(exe + "\\registry.reg");
+                    txtbox.AppendText("\n\nOneClick Install via QSU enabled");
+                }
+                catch
+                {
+                    txtbox.AppendText("\n\nRegistry was unable to change... no Custom protocol enabled.");
+                    return;
+                }
+                InstalledOneClickQ.Content = "Disable QSU OneClick install";
+                OneClickQSU = true;
             }
-            
+            else
+            {
+                MessageBoxResult result = MessageBox.Show("This will disable OneClick Install via Quest Song Utilities.\nDo you wish to continue?", "Quest Song Utilities OneClick QSU", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                switch (result)
+                {
+                    case MessageBoxResult.No:
+                        txtbox.AppendText("\n\nOneClick disabeling enabeling aborted");
+                        Running = false;
+                        txtbox.ScrollToEnd();
+                        return;
+                }
+                txtbox.AppendText("\n\nChanging Registry to disable QSU Custom protocols");
+                String regFile = "Windows Registry Editor Version 5.00\n\n[-HKEY_CLASSES_ROOT\\qsu]";
+                File.WriteAllText(exe + "\\registry.reg", regFile);
+                try
+                {
+                    Process.Start(exe + "\\registry.reg");
+                    txtbox.AppendText("\n\nOneClick Install via QSU Custom protocol disabled");
+                }
+                catch
+                {
+                    txtbox.AppendText("\n\nRegistry was unable to change.");
+                    return;
+                }
+                InstalledOneClickQ.Content = "Enable QSU OneClick install";
+                OneClickQSU = false;
+            }
         }
 
         public void enable_BeatSaver(object sender, RoutedEventArgs e)
@@ -240,7 +284,7 @@ namespace Quest_Song_Exporter
                         txtbox.ScrollToEnd();
                         return;
                 }
-                txtbox.AppendText("\n\nChanging Registry to enable one Click Custom protocols");
+                txtbox.AppendText("\n\nChanging Registry to enable OneClick Custom protocols");
                 String regFile = "Windows Registry Editor Version 5.00\n\n[HKEY_CLASSES_ROOT\\beatsaver]\n@=\"URL: beatsaver\"\n\"URL Protocol\"=\"beatsaver\"\n\n[HKEY_CLASSES_ROOT\\beatsaver]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + "\"\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell]\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell\\open]\n\n[HKEY_CLASSES_ROOT\\beatsaver\\shell\\open\\command]\n@=\"" + System.Reflection.Assembly.GetEntryAssembly().Location.Replace("\\", "\\\\") + " \\\"%1\\\"\"";
                 File.WriteAllText(exe + "\\registry.reg", regFile);
                 try
@@ -251,12 +295,13 @@ namespace Quest_Song_Exporter
                 catch
                 {
                     txtbox.AppendText("\n\nRegistry was unable to change... no Custom protocol disabled.");
+                    return;
                 }
                 InstalledOneClick.Content = "Disable BeatSaver OneClick install";
                 OneClick = true;
             } else
             {
-                MessageBoxResult result = MessageBox.Show("This will disable OneClick Install via Quest Song Exporter.\nDo you wish to continue?", "Quest Song Utilities OneClick BeatSaver", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult result = MessageBox.Show("This will disable OneClick Install via Quest Song Utilities.\nDo you wish to continue?", "Quest Song Utilities OneClick BeatSaver", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 switch (result)
                 {
                     case MessageBoxResult.No:
@@ -265,7 +310,7 @@ namespace Quest_Song_Exporter
                         txtbox.ScrollToEnd();
                         return;
                 }
-                txtbox.AppendText("\n\nChanging Registry to disable Click Custom protocols");
+                txtbox.AppendText("\n\nChanging Registry to disable OneClick Custom protocols");
                 String regFile = "Windows Registry Editor Version 5.00\n\n[-HKEY_CLASSES_ROOT\\beatsaver]";
                 File.WriteAllText(exe + "\\registry.reg", regFile);
                 try
@@ -276,6 +321,7 @@ namespace Quest_Song_Exporter
                 catch
                 {
                     txtbox.AppendText("\n\nRegistry was unable to change.");
+                    return;
                 }
                 InstalledOneClick.Content = "Enable BeatSaver OneClick install";
                 OneClick = false;
