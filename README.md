@@ -26,7 +26,7 @@ Enter your Quests IP and click "Load Playlists". Then choose the Playlist you wa
 </br>
 
 ### How to enable OneClick Install
-Connect your Quest to your PC and open "Quest Song Utilities.exe" everytime you install a Update/move the files you'll get a message by User Account control. Click yes to enable one click install with the links qsu://[SongKey] e. g. [qsu://abcd](qsu://abcd). click "Enable BeatSaver oneClick install" and again press yes on everything that appears. After that you will be able to use OneClick install links like [beatsaver://abcd](beatsaver://abcd) to install Songs to your quest. The custom Liks to open the programs don't work because of GitHub.
+Connect your Quest to your PC and open "Quest Song Utilities.exe" everytime you install a Update/move the files you'll get a message that says to enable custom protocols. Click "Enable QSU OneClick install" and yes on everything that appears to enable one click install with the links qsu://[SongKey] e. g. [qsu://abcd](qsu://abcd). Click "Enable BeatSaver OneClick install" and again press yes on everything that appears. After that you will be able to use OneClick install links like [beatsaver://abcd](beatsaver://abcd) to install Songs to your quest. The custom Liks to open the programs don't work because of GitHub.
 
 <br/>
 <br/>
