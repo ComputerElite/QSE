@@ -40,7 +40,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 11;
-        int PatchV = 3;
+        int PatchV = 4;
         Boolean Preview = false;
 
         String IP = "";
@@ -54,13 +54,20 @@ namespace Quest_Song_Exporter
         Boolean Running = false;
         Boolean OneClick = false;
         Boolean OneClickQSU = false;
-        String exe = AppDomain.CurrentDomain.BaseDirectory;
+        String exe = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.Length - 1);
         ArrayList P = new ArrayList();
         int Lists = 0;
+        int Open = 0;
         String args = "";
 
         public async Task KeyAsync(String key)
         {
+            int c = 0;
+            while (File.Exists(exe + "\\tmp\\Song" + c + ".zip")) {
+                c++;
+            }
+            Open = c;
+
             StartBMBF();
             QuestIP();
 
@@ -81,7 +88,7 @@ namespace Quest_Song_Exporter
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
                 {
                     client.DownloadFileCompleted += new AsyncCompletedEventHandler(finished_download);
-                    client.DownloadFileAsync(keys, exe + "\\tmp\\Song.zip");
+                    client.DownloadFileAsync(keys, exe + "\\tmp\\Song" + Open + ".zip");
                 }));
             }
             catch
@@ -110,8 +117,12 @@ namespace Quest_Song_Exporter
             }
             try
             {
-                Sync();
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+                {
+                    Sync();
+                }));
                 txtbox.AppendText("\n\nSong " + keyName + " (" + args + ") was synced to your Quest.");
+                this.Close();
             } catch
             {
                 txtbox.AppendText("\n\nCouldn't sync with BeatSaber. Needs to be done manually.");
@@ -121,8 +132,7 @@ namespace Quest_Song_Exporter
         public void finished_download(object sender, AsyncCompletedEventArgs e)
         {
             txtbox.AppendText("\nDownloaded BeatMap " + args + "\n");
-            unzip(exe + "\\tmp", true);
-            upload(exe + "\\tmp\\Song.zip");
+            upload(exe + "\\tmp\\Song" + Open + ".zip");
         }
 
         public MainWindow()
@@ -175,6 +185,7 @@ namespace Quest_Song_Exporter
 
             StreamReader r = new StreamReader(@exe + "\\Info.json");
             String Info = r.ReadToEnd();
+            r.Close();
             var json = JSON.Parse(Info);
 
             if(!json["Version"].ToString().Equals("\"" + MajorV.ToString() + MinorV.ToString() + PatchV.ToString() + "\""))
@@ -761,16 +772,19 @@ namespace Quest_Song_Exporter
             try
             {
                 //Download Update.txt
-                using (WebClient client = new WebClient())
+                if(!File.Exists(exe + "\\tmp\\Update.txt"))
                 {
-                    try
+                    using (WebClient client = new WebClient())
                     {
-                        client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
-                    }
-                    catch
-                    {
-                        txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
-                        txtbox.AppendText("\n\n- Your PC has internet.");
+                        try
+                        {
+                            client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
+                        }
+                        catch
+                        {
+                            txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
+                            txtbox.AppendText("\n\n- Your PC has internet.");
+                        }
                     }
                 }
                 StreamReader VReader = new StreamReader(exe + "\\tmp\\Update.txt");
@@ -832,10 +846,16 @@ namespace Quest_Song_Exporter
                     txtbox.AppendText("\n\nLooks like you have a preview version. The release version has been released. Please Update now. ");
                     UpdateB.Visibility = Visibility.Visible;
                 }
-
+                VReader.Close();
             } catch
             {
 
+            }
+            try
+            {
+                File.Delete(exe + "\\tmp\\Update.txt");
+            } catch
+            {
             }
         }
 
@@ -1177,10 +1197,16 @@ namespace Quest_Song_Exporter
 
         private void Close(object sender, RoutedEventArgs e)
         {
-            if(Directory.Exists(exe + "\\tmp")) {
-                Directory.Delete(exe + "\\tmp", true);
-            }
             saveInfo();
+            try
+            {
+                if (Directory.Exists(exe + "\\tmp"))
+                {
+                    Directory.Delete(exe + "\\tmp", true);
+                }
+            } catch
+            {
+            }
             this.Close();
         }
 
