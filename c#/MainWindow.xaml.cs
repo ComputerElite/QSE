@@ -39,8 +39,8 @@ namespace Quest_Song_Exporter
     {
 
         int MajorV = 3;
-        int MinorV = 11;
-        int PatchV = 4;
+        int MinorV = 12;
+        int PatchV = 0;
         Boolean Preview = false;
 
         String IP = "";
@@ -157,6 +157,10 @@ namespace Quest_Song_Exporter
             if (!Directory.Exists(exe + "\\Playlists"))
             {
                 Directory.CreateDirectory(exe + "\\Playlists");
+            }
+            if (!Directory.Exists(exe + "\\BPLists"))
+            {
+                Directory.CreateDirectory(exe + "\\BPLists");
             }
             if (File.Exists(exe + "\\QSE_Update.exe"))
             {
@@ -591,6 +595,80 @@ namespace Quest_Song_Exporter
             }
             Playlists.SelectedIndex = 0;
             txtbox.AppendText("\n\nLoaded Playlists.");
+        }
+
+        public void BPList(object sender, RoutedEventArgs e)
+        {
+            if (Running)
+            {
+                return;
+            }
+            if (!CheckIP())
+            {
+                txtbox.AppendText("\n\nChoose a valid IP!");
+                txtbox.ScrollToEnd();
+                return;
+            }
+            Running = true;
+            CheckIP();
+            if (Playlists.SelectedIndex == 0)
+            {
+                txtbox.AppendText("\n\nChoose a Playlist!");
+                txtbox.ScrollToEnd();
+                Running = false;
+                return;
+            }
+            
+            String Config = exe + "\\tmp\\config.json";
+            String txt = File.ReadAllText(Config);
+            var json = JSON.Parse(txt);
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                txtbox.AppendText("\n\nmaking BPList " + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"]);
+            }));
+            var result = JSON.Parse("{}");
+            result["playlistTitle"] = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"];
+            result["playlistAuthor"] = "Quest Song Utilities";
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                txtbox.AppendText("\nDownloading Playlist Cover");
+            }));
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    client.DownloadFile("http://" + IP + ":50000/host/beatsaber/playlist/cover?PlaylistID=" + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistID"], exe + "\\tmp\\Playlist.png");
+                }
+                catch
+                {
+                    txtbox.AppendText("\n\n\nError (Code: BMBF100). Couldn't acces BMBF Web Interface. Check Following:");
+                    txtbox.AppendText("\n\n- You've put in the right IP");
+                    txtbox.AppendText("\n\n- BMBF is opened");
+                    Running = false;
+                    return;
+                }
+            }
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                txtbox.AppendText("\nDownloaded Playlist Cover");
+            }));
+            result["image"] = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(exe + "\\tmp\\Playlist.png"));
+
+            for (int i = 0; json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongID"] != null; i++)
+            {
+                String SongHash = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongID"];
+                SongHash = SongHash.Replace("custom_level_", "");
+                String SongName = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongName"];
+                result["songs"][i]["hash"] = SongHash;
+                result["songs"][i]["songName"] = SongName;
+            }
+
+            File.WriteAllText(exe + "\\BPLists\\" + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + ".bplist", result.ToString());
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
+                txtbox.AppendText("\nBPList " + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + " has been made at " + "BPLists\\" + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + ".bplist");
+            }));
+            Running = false;
         }
 
         public void DeleteP(object sender, RoutedEventArgs e)
