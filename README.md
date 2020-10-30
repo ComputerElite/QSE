@@ -1,5 +1,5 @@
 # QSU (Quest Song Utilities)
-It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration. OneClick Install via BeatSaver has also been added. (The tool was originally named QSE Quest Song Exporter but got renamed due to these changes)
+It was originally created just for the puprpose of creating nicely named zips out of the shitty named Beat Saber Songs on Quest (custom_level_songhash). Now it can also do a list of all songs you have woth Metadata like BPM, Song Artist, Mapper, ... And thanks to darkuni you can make Backups of your Playlists and Restore them without changing your mod configuration. OneClick Install via BeatSaver has been added and you can make a BPList out of your playlists in BMBf (The tool was originally named QSE Quest Song Exporter but got renamed due to these changes)
 
 # How-to (Quest)
 ## C# version (GUI):
@@ -11,6 +11,8 @@ Start Quest Song Utilities.exe. Connect your Quest to you PC. Check "Auto Mode (
 Do everything as above and check "Make List of all songs". This will create a List of all Your Songs with information like Song name, BPM, Song sub name, song author, etc.
 <br/>
 <br/>
+### how to make a BPList
+Enter your Quests IP and click "Load Playlists". Then choose the Playlist you want and click "Make BPList". It'll save a .bplist file in the BPLists folder.
 ### How to do Playlist Backups
 Enter your Quests IP and a Backup name and click "Backup Playlists". The It'll save your Playlists.
 
