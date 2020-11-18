@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using Newtonsoft.Json.Linq;
 using SimpleJSON;
 using System;
 using System.Collections;   
@@ -40,7 +39,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 12;
-        int PatchV = 0;
+        int PatchV = 1;
         Boolean Preview = false;
 
         String IP = "";
@@ -375,17 +374,14 @@ namespace Quest_Song_Exporter
                 }
             }
 
-            if (FIP == "")
+            if (FIP == "" && IP == "Quest IP")
             {
+                IP = "Quest IP";
                 return;
             }
+            if (FIP == "") return;
             IP = FIP;
-            Quest.Text = FIP;
-            if(IP == "")
-            {
-                Quest.Text = "Quest IP";
-            }
-
+            Quest.Text = IP;
         }
 
         public void StartBMBF()
@@ -582,13 +578,13 @@ namespace Quest_Song_Exporter
                 PN.Add(o);
                 index++;
             }
-
             for (int i = 0; i < P.Count; i++)
             {
                 if (!known.Contains(P[i]))
                 {
                     Playlists.Items.Add(PN[i]);
-                } else
+                }
+                else
                 {
                     Lists++;
                 }
@@ -654,13 +650,15 @@ namespace Quest_Song_Exporter
             }));
             result["image"] = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(exe + "\\tmp\\Playlist.png"));
 
-            for (int i = 0; json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongID"] != null; i++)
+            int i = 0;
+            foreach (JSONNode Song in json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"])
             {
-                String SongHash = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongID"];
+                String SongHash = Song["SongID"];
                 SongHash = SongHash.Replace("custom_level_", "");
-                String SongName = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][i]["SongName"];
+                String SongName = Song["SongName"];
                 result["songs"][i]["hash"] = SongHash;
                 result["songs"][i]["songName"] = SongName;
+                i++;
             }
 
             File.WriteAllText(exe + "\\BPLists\\" + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + ".bplist", result.ToString());
@@ -705,15 +703,7 @@ namespace Quest_Song_Exporter
             String Config = exe + "\\tmp\\config.json";
             ArrayList Songs = new ArrayList();
 
-
-            StreamReader reader = new StreamReader(@Config);
-            String line;
-            String end = "";
-            while ((line = reader.ReadLine()) != null)
-            {
-                end = end + line;
-            }
-            reader.Close();
+            String end = File.ReadAllText(Config);
             var json = SimpleJSON.JSON.Parse(end);
             String o;
 
@@ -724,15 +714,15 @@ namespace Quest_Song_Exporter
                 index2++;
                 txtbox.AppendText("\n\n");
             }
-            for (int i = 0; i < Songs.Count; i++)
+            foreach (String song in Songs)
             {
-                if(!adb("shell rm -rR /sdcard/BMBFData/CustomSongs/" + Songs[i]))
+                if(!adb("shell rm -rR /sdcard/BMBFData/CustomSongs/" + song))
                 {
                     return;
                 }
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
                 {
-                    txtbox.AppendText("\n\nDeleted " + Songs[i]);
+                    txtbox.AppendText("\n\nDeleted " + song);
                     txtbox.ScrollToEnd();
                 }));
             }
@@ -740,17 +730,7 @@ namespace Quest_Song_Exporter
 
             try
             {
-                JObject on = JObject.Parse(json.ToString());
-                on.Property("SyncConfig").Remove();
-                on.Property("IsCommitted").Remove();
-                on.Property("BeatSaberVersion").Remove();
-
-                JProperty lrs = on.Property("Config");
-                on.Add(lrs.Value.Children<JProperty>());
-                lrs.Remove();
-
-                String FConfig = on.ToString();
-                File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
+                File.WriteAllText(exe + "\\tmp\\config.json", json["Config"].ToString());
 
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
                 {
@@ -803,22 +783,17 @@ namespace Quest_Song_Exporter
             IP = IP.Replace("Http", "");
             IP = IP.Replace("Https", "");
 
-            int count = 0;
-            for (int i = 0; i < IP.Length; i++)
+            int count = IP.Split('.').Count();
+            if (count != 4)
             {
-                if (IP.Substring(i, 1) == ".")
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
                 {
-                    count++;
-                }
-            }
-            if (count != 3)
-            {
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
                     Quest.Text = IP;
                 }));
                 return false;
             }
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
+            {
                 Quest.Text = IP;
             }));
             return true;
@@ -831,16 +806,12 @@ namespace Quest_Song_Exporter
             Backups.Items.Clear();
             Backups.Items.Add("Backups");
 
-            for (int i = 0; i < Files.Length; i++)
+            foreach (String cfile in Files)
             {
-                if (Files[i].EndsWith(".json"))
+                if (cfile.EndsWith(".json"))
                 {
-                    Jsons.Add(Files[i].Substring(Files[i].LastIndexOf("\\") + 1, Files[i].Length - 6 - Files[i].LastIndexOf("\\")));
+                    Backups.Items.Add(System.IO.Path.GetFileNameWithoutExtension(cfile));
                 }
-            }
-            for (int o = 0; o < Jsons.Count; o++)
-            {
-                Backups.Items.Add(Jsons[o]);
             }
             Backups.SelectedIndex = 0;
         }
@@ -1050,16 +1021,10 @@ namespace Quest_Song_Exporter
 
                 String Config = exe + "\\tmp\\config.json";
 
+                var json = JSON.Parse(File.ReadAllText(Config));
+                json["IsCommitted"] = false;
+                File.WriteAllText(exe + "\\Playlists\\" + BName.Text + ".json", json["Config"].ToString());
 
-
-                StreamReader reader = new StreamReader(@Config);
-                String line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    int Index = line.IndexOf("\"Mods\":[", 0, line.Length);
-                    String Playlists = line.Substring(0, Index);
-                    File.WriteAllText(exe + "\\Playlists\\" + BName.Text + ".json", Playlists);
-                }
                 txtbox.AppendText("\n\nBacked up Playlists to " + exe + "\\Playlists\\" + BName.Text + ".json");
                 txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
@@ -1113,8 +1078,7 @@ namespace Quest_Song_Exporter
             {
                 return;
             }
-            Boolean good = CheckIP();
-            if (!good)
+            if (!CheckIP())
             {
                 txtbox.AppendText("\n\nChoose a valid IP!");
                 Running = false;
@@ -1158,37 +1122,12 @@ namespace Quest_Song_Exporter
 
                 Playlists = exe + "\\Playlists\\" + Backups.SelectedValue + ".json";
 
-                StreamReader reader = new StreamReader(@Config);
-                String line;
-                String CContent = "";
-                int Index = 0;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    Index = line.IndexOf("\"Mods\":", 0, line.Length);
-                    CContent = line.Substring(Index, line.Length - Index);
-                }
+                var j = JSON.Parse(File.ReadAllText(Config));
+                var p = JSON.Parse(File.ReadAllText(Playlists));
 
-                StreamReader Preader = new StreamReader(@Playlists);
-                String Pline;
-                String Content = "";
-                while ((Pline = Preader.ReadLine()) != null)
-                {
-                    Content = Pline;
-                }
 
-                String finished = Content + CContent;
-
-                JObject o = JObject.Parse(finished);
-                o.Property("SyncConfig").Remove();
-                o.Property("IsCommitted").Remove();
-                o.Property("BeatSaberVersion").Remove();
-
-                JProperty lrs = o.Property("Config");
-                o.Add(lrs.Value.Children<JProperty>());
-                lrs.Remove();
-
-                String FConfig = o.ToString();
-                File.WriteAllText(exe + "\\tmp\\config.json", FConfig);
+                j["Config"]["Playlists"] = p["Playlists"];
+                File.WriteAllText(exe + "\\tmp\\config.json", j["Config"].ToString());
 
                 PushPNG(exe + "\\Playlists\\Playlists");
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
@@ -1278,10 +1217,7 @@ namespace Quest_Song_Exporter
             saveInfo();
             try
             {
-                if (Directory.Exists(exe + "\\tmp"))
-                {
-                    Directory.Delete(exe + "\\tmp", true);
-                }
+                if (Directory.Exists(exe + "\\tmp")) Directory.Delete(exe + "\\tmp", true);
             } catch
             {
             }
@@ -1370,25 +1306,25 @@ namespace Quest_Song_Exporter
 
 
 
-            for (int i = 0; i < directories.Length; i++)
+            foreach (String CD in directories)
             {
                 txtbox.AppendText("\n");
           
 
-                if (!File.Exists(directories[i] + "\\" + "Info.dat") && !File.Exists(directories[i] + "\\" + "info.dat"))
+                if (!File.Exists(CD + "\\" + "Info.dat") && !File.Exists(CD + "\\" + "info.dat"))
                 {
-                    txtbox.AppendText("\n" + directories[i] + " is no Song");
+                    txtbox.AppendText("\n" + CD + " is no Song");
                     continue;
                 }
                 String dat = "";
-                if (File.Exists(directories[i] + "\\" + "Info.dat"))
+                if (File.Exists(CD + "\\" + "Info.dat"))
                 {
-                    dat = directories[i] + "\\" + "Info.dat";
+                    dat = CD + "\\" + "Info.dat";
 
                 }
-                if (File.Exists(directories[i] + "\\" + "info.dat"))
+                if (File.Exists(CD + "\\" + "info.dat"))
                 {
-                    dat = directories[i] + "\\" + "info.dat";
+                    dat = CD + "\\" + "info.dat";
 
                 }
                 try
@@ -1443,7 +1379,7 @@ namespace Quest_Song_Exporter
                     }
                     list.Add(Name.ToLower());
                     txtbox.AppendText("\nSong Name: " + Name);
-                    txtbox.AppendText("\nFolder: " + directories[i]);
+                    txtbox.AppendText("\nFolder: " + CD);
 
                     if ((bool)box.IsChecked)
                     {
@@ -1455,7 +1391,7 @@ namespace Quest_Song_Exporter
                             if(debug)
                             {
                                 over.Add("\nSong Name: " + Name);
-                                over.Add("\nFolder: " + directories[i]);
+                                over.Add("\nFolder: " + CD);
                                 over.Add("\n");
                             }
                                     
@@ -1471,10 +1407,9 @@ namespace Quest_Song_Exporter
                         }
                     }
 
-                    zip(directories[i], dest + "\\" + Name + ".zip");
+                    zip(CD, dest + "\\" + Name + ".zip");
                     exported++;
                     Name = "";
-                    //src = new File("");
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                     txtbox.ScrollToEnd();
 
@@ -1540,7 +1475,6 @@ namespace Quest_Song_Exporter
             {
                 {
                     dest = fd.FileName;
-                    dest = dest.Replace("\\select.directory", "");
                     if (!System.IO.Directory.Exists(dest))
                     {
                         System.IO.Directory.CreateDirectory(dest);
@@ -1652,18 +1586,17 @@ namespace Quest_Song_Exporter
             String dest = exe + "\\tmp\\Zips";
             txtbox.AppendText("\nUnziping files to temporary folder.");
 
-            for (int i = 0; i < directories.Length; i++)
+            foreach (String CD in directories)
             {
-                if(!directories[i].EndsWith(".zip"))
+                if(!CD.EndsWith(".zip"))
                 {
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                     continue;
                 }
                 
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate {
-                    end = directories[i].LastIndexOf("\\");
-                    f = directories[i].Substring(end + 1, directories[i].Length - end - 4);
-                    ZipFile.ExtractToDirectory(directories[i], dest + "\\" + f);
+                    f = System.IO.Path.GetFileNameWithoutExtension(CD);
+                    ZipFile.ExtractToDirectory(CD, dest + "\\" + f);
                 }));
 
             }
@@ -1724,43 +1657,33 @@ namespace Quest_Song_Exporter
 
 
 
-            for (int i = 0; i < directories.Length; i++)
+            foreach (String CD in directories)
             {
                 requierments.Clear();
                 //Check if Folder is Valid Song
                 txtbox.AppendText("\n");
 
-                if (!File.Exists(directories[i] + "\\" + "Info.dat") && !File.Exists(directories[i] + "\\" + "info.dat"))
+                if (!File.Exists(CD + "\\" + "Info.dat") && !File.Exists(CD + "\\" + "info.dat"))
                 {
-                    txtbox.AppendText("\n" + directories[i] + " is no Song");
+                    txtbox.AppendText("\n" + CD + " is no Song");
                     continue;
                 }
                 String dat = "";
-                if (File.Exists(directories[i] + "\\" + "Info.dat"))
+                if (File.Exists(CD + "\\" + "Info.dat"))
                 {
-                    dat = directories[i] + "\\" + "Info.dat";
+                    dat = CD + "\\" + "Info.dat";
 
                 }
-                if (File.Exists(directories[i] + "\\" + "info.dat"))
+                if (File.Exists(CD + "\\" + "info.dat"))
                 {
-                    dat = directories[i] + "\\" + "info.dat";
+                    dat = CD + "\\" + "info.dat";
 
                 }
 
 
                 try
                 {
-                    StreamReader reader = new StreamReader(@dat);
-
-                    String text = "";
-                    String line;
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        text = text + line;
-                    }
-
-                    var json = SimpleJSON.JSON.Parse(text);
+                    var json = SimpleJSON.JSON.Parse(File.ReadAllText(dat));
                     Name = json["_songName"].ToString();
 
                     Name = Name.Substring(1, Name.Length - 2);
@@ -1778,15 +1701,14 @@ namespace Quest_Song_Exporter
 
                     if (Zips)
                     {
-                        end = directories[i].LastIndexOf("\\");
-                        zip = dest + "\\" + directories[i].Substring(end + 1, directories[i].Length - end - 1) + ".zip";
+                        zip = dest + "\\" + System.IO.Path.GetDirectoryName(CD) + ".zip";
                         txtbox.AppendText("\nZip: " + zip);
                         Folder.Add(zip);
                     }
                     else
                     {
-                        txtbox.AppendText("\nFolder: " + directories[i]);
-                        Folder.Add(directories[i]);
+                        txtbox.AppendText("\nFolder: " + CD);
+                        Folder.Add(CD);
                     }
 
 
@@ -1797,11 +1719,11 @@ namespace Quest_Song_Exporter
 
                     /////////Requirements
 
-                    for (int d = 0; d < 5; d++)
+                    foreach (JSONNode modes in json["_difficultyBeatmapSets"])
                     {
-                        for (int s = 0; s < 5; s++)
+                        foreach (JSONNode diff in modes["_difficultyBeatmaps"])
                         {
-                            Name = json["_difficultyBeatmapSets"][d]["_difficultyBeatmaps"][s]["_customData"]["_requirements"].ToString();
+                            Name = diff["_customData"]["_requirements"].ToString();
                             if (Name.Contains("GameSaber"))
                             {
                                 if (!requierments.Contains("GameSaber, "))
@@ -1922,7 +1844,6 @@ namespace Quest_Song_Exporter
                     }
                     txtbox.AppendText("\nRequierments: " + Content);
                     requiered.Add(Content);
-                    reader.Close();
                 }
                 catch
                 {
