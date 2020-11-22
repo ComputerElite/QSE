@@ -39,8 +39,8 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 12;
-        int PatchV = 1;
-        Boolean Preview = false;
+        int PatchV = 2;
+        Boolean Preview = true;
 
         String IP = "";
         String path;
@@ -53,11 +53,13 @@ namespace Quest_Song_Exporter
         Boolean Running = false;
         Boolean OneClick = false;
         Boolean OneClickQSU = false;
+        Boolean Converted = false;
         String exe = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.Length - 1);
         ArrayList P = new ArrayList();
         int Lists = 0;
         int Open = 0;
         String args = "";
+        String Log = "";
 
         public async Task KeyAsync(String key)
         {
@@ -165,6 +167,10 @@ namespace Quest_Song_Exporter
             {
                 File.Delete(exe + "\\QSE_Update.exe");
             }
+            if (File.Exists(exe + "\\QSU_Update.exe"))
+            {
+                File.Delete(exe + "\\QSU_Update.exe");
+            }
             Update();
             Move();
             
@@ -203,6 +209,7 @@ namespace Quest_Song_Exporter
             }
 
             Quest.Text = json["IP"];
+            Converted = json["pConverted"].AsBool;
 
             OneClick = json["OneClickInstalled"].AsBool;
             OneClickQSU = json["OneClickInstalledQSU"].AsBool;
@@ -233,6 +240,7 @@ namespace Quest_Song_Exporter
             json["OneClickInstalled"] = OneClick;
             json["OneClickInstalledQSU"] = OneClickQSU;
             json["IP"] = IP;
+            json["pConverted"] = Converted;
             File.WriteAllText(exe + "\\Info.json", json.ToString());
         }
 
@@ -526,69 +534,47 @@ namespace Quest_Song_Exporter
                     client.DownloadFile("https://raw.githubusercontent.com/BMBF/resources/master/assets/beatsaber-knowns.json", exe + "\\tmp\\beatsaber-knowns.json");
                 } catch
                 {
-                    txtbox.AppendText("Couldn't check for new Song Packs.");
+                    txtbox.AppendText("\n\nCouldn't check for new Song Packs.");
                 }
             }
             String knows = exe + "\\tmp\\beatsaber-knowns.json";
 
-            StreamReader reader2 = new StreamReader(@knows);
-            String line2;
-            String end2 = "";
-            while ((line2 = reader2.ReadLine()) != null)
-            {
-                end2 = end2 + line2;
-            }
-            var json2 = SimpleJSON.JSON.Parse(end2);
-            String o;
-            int index3 = 0;
+            var json2 = SimpleJSON.JSON.Parse(File.ReadAllText(knows));
             ArrayList known = new ArrayList();
 
-            while ((o = json2["knownLevelPackIds"][index3]) != null)
+            foreach(JSONNode pack in json2["knownLevelPackIds"])
             {
-                known.Add(o);
-
-                index3++;
+                known.Add(pack.ToString().Replace("\"", ""));
             }
 
 
             String Config = exe + "\\tmp\\config.json";
             P = new ArrayList();
 
-
-            StreamReader reader = new StreamReader(@Config);
-            String line;
-            String end = "";
-            while ((line = reader.ReadLine()) != null)
-            {
-                end = end + line;
-            }
-            var json = SimpleJSON.JSON.Parse(end);
+            var json = SimpleJSON.JSON.Parse(File.ReadAllText(Config));
             int index = 0;
 
             ArrayList PN = new ArrayList();
 
-            while ((o = json["Config"]["Playlists"][index]["PlaylistID"]) != null)
+            foreach (JSONNode Playlist in json["Config"]["Playlists"])
             {
-                P.Add(o);
-                index++;
+                P.Add(Playlist["PlaylistID"].ToString().Replace("\"", ""));
+                PN.Add(Playlist["PlaylistName"].ToString().Replace("\"", ""));
             }
-            index = 0;
-            while ((o = json["Config"]["Playlists"][index]["PlaylistName"]) != null)
+
+            foreach (String c in P)
             {
-                PN.Add(o);
-                index++;
-            }
-            for (int i = 0; i < P.Count; i++)
-            {
-                if (!known.Contains(P[i]))
+                if (!known.Contains(c))
                 {
-                    Playlists.Items.Add(PN[i]);
+                    Playlists.Items.Add(PN[index]);
                 }
                 else
                 {
                     Lists++;
                 }
+                index++;
             }
+            
             Playlists.SelectedIndex = 0;
             txtbox.AppendText("\n\nLoaded Playlists.");
         }
@@ -621,6 +607,7 @@ namespace Quest_Song_Exporter
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
             {
                 txtbox.AppendText("\n\nmaking BPList " + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"]);
+                txtbox.ScrollToEnd();
             }));
             var result = JSON.Parse("{}");
             result["playlistTitle"] = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"];
@@ -628,6 +615,7 @@ namespace Quest_Song_Exporter
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
             {
                 txtbox.AppendText("\nDownloading Playlist Cover");
+                txtbox.ScrollToEnd();
             }));
             using (WebClient client = new WebClient())
             {
@@ -640,6 +628,7 @@ namespace Quest_Song_Exporter
                     txtbox.AppendText("\n\n\nError (Code: BMBF100). Couldn't acces BMBF Web Interface. Check Following:");
                     txtbox.AppendText("\n\n- You've put in the right IP");
                     txtbox.AppendText("\n\n- BMBF is opened");
+                    txtbox.ScrollToEnd();
                     Running = false;
                     return;
                 }
@@ -647,6 +636,7 @@ namespace Quest_Song_Exporter
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
             {
                 txtbox.AppendText("\nDownloaded Playlist Cover");
+                txtbox.ScrollToEnd();
             }));
             result["image"] = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(exe + "\\tmp\\Playlist.png"));
 
@@ -665,6 +655,7 @@ namespace Quest_Song_Exporter
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
             {
                 txtbox.AppendText("\nBPList " + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + " has been made at " + "BPLists\\" + json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["PlaylistName"] + ".bplist");
+                txtbox.ScrollToEnd();
             }));
             Running = false;
         }
@@ -700,29 +691,17 @@ namespace Quest_Song_Exporter
                     return;
             }
             
-            String Config = exe + "\\tmp\\config.json";
-            ArrayList Songs = new ArrayList();
+            var json = SimpleJSON.JSON.Parse(File.ReadAllText(exe + "\\tmp\\config.json"));
 
-            String end = File.ReadAllText(Config);
-            var json = SimpleJSON.JSON.Parse(end);
-            String o;
-
-            int index2 = 0;
-            while ((o = json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"][index2]["SongID"]) != null)
+            foreach (JSONNode song in json["Config"]["Playlists"][Playlists.SelectedIndex + Lists - 1]["SongList"])
             {
-                Songs.Add(o);
-                index2++;
-                txtbox.AppendText("\n\n");
-            }
-            foreach (String song in Songs)
-            {
-                if(!adb("shell rm -rR /sdcard/BMBFData/CustomSongs/" + song))
+                if(!adb("shell rm -rR /sdcard/BMBFData/CustomSongs/" + song["SongID"].ToString().Replace("\"", "")))
                 {
                     return;
                 }
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate
                 {
-                    txtbox.AppendText("\n\nDeleted " + song);
+                    txtbox.AppendText("\n\nDeleted " + song["SongID"]);
                     txtbox.ScrollToEnd();
                 }));
             }
@@ -737,12 +716,14 @@ namespace Quest_Song_Exporter
                     postChanges(exe + "\\tmp\\config.json");
                 }));
                 txtbox.AppendText("\n\nDeleted Playlist with all Data");
+                txtbox.ScrollToEnd();
             }
             catch
             {
                 txtbox.AppendText("\n\n\nAn error occured (Code: BMBF100). Check following:");
                 txtbox.AppendText("\n\n- Your Quest is on and BMBF opened");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
+                txtbox.ScrollToEnd();
             }
             Running = false;
         }
@@ -750,16 +731,32 @@ namespace Quest_Song_Exporter
 
         public void Move()
         {
-            string[] Files = Directory.GetFiles(exe + "\\CustomSongs");
-            for (int i = 0; i < Files.Length; i++)
-            {
-                if (Files[i].EndsWith(".json"))
-                {
+            if (Converted) return;
 
-                    File.Move(Files[i], exe + "\\Playlists\\" + Files[i].Substring(Files[i].LastIndexOf("\\") + 1, Files[i].Length - 1 - Files[i].LastIndexOf("\\")));
+            foreach (String file in Directory.GetFiles(exe + "\\CustomSongs"))
+            {
+                if (file.EndsWith(".json"))
+                {
+                    File.Move(file, exe + "\\Playlists\\" + System.IO.Path.GetFileName(file));
                 }
             }
 
+            foreach (String file in Directory.GetFiles(exe + "\\Playlists"))
+            {
+                if(file.EndsWith(".json"))
+                {
+                    String contents = File.ReadAllText(file);
+                    if(contents.EndsWith(","))
+                    {
+                        contents = contents.Substring(0, contents.Length - 1) + "}}";
+                        JSONNode c = JSON.Parse(contents);
+                        File.Delete(file);
+                        File.WriteAllText(file, c["Config"].ToString());
+                    }
+                }
+            }
+            
+            Converted = true;
         }
 
         public Boolean CheckIP()
@@ -833,6 +830,7 @@ namespace Quest_Song_Exporter
                         {
                             txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
                             txtbox.AppendText("\n\n- Your PC has internet.");
+                            txtbox.ScrollToEnd();
                         }
                     }
                 }
@@ -888,12 +886,14 @@ namespace Quest_Song_Exporter
                     txtbox.AppendText("\n\nLooks like you have a preview version. Downgrade now from " + MajorV + "." + MinorV + "." + PatchV + " to " + MajorU + "." + MinorU + "." + PatchU + " xD");
                     UpdateB.Visibility = Visibility.Visible;
                     UpdateB.Content = "Downgrade Now xD";
+                    txtbox.ScrollToEnd();
                 }
                 if (VersionV == VersionU && Preview)
                 {
                     //User has Preview Version but a release Version has been released
                     txtbox.AppendText("\n\nLooks like you have a preview version. The release version has been released. Please Update now. ");
                     UpdateB.Visibility = Visibility.Visible;
+                    txtbox.ScrollToEnd();
                 }
                 VReader.Close();
             } catch
@@ -931,6 +931,7 @@ namespace Quest_Song_Exporter
             {
                 // Log error.
                 txtbox.AppendText("\n\n\nAn error Occured (Code: UD200). Couldn't download Update.");
+                txtbox.ScrollToEnd();
             }
         }
 
@@ -967,6 +968,7 @@ namespace Quest_Song_Exporter
             if (!good)
             {
                 txtbox.AppendText("\n\nChoose a valid IP!");
+                txtbox.ScrollToEnd();
                 Running = false;
                 return;
             }
@@ -1003,6 +1005,7 @@ namespace Quest_Song_Exporter
                 if (File.Exists(exe + "\\Playlists\\" + BName.Text + ".json"))
                 {
                     txtbox.AppendText("\n\nThis Playlist Backup already exists!");
+                    txtbox.ScrollToEnd();
                     Running = false;
                     return;
                 }
@@ -1034,6 +1037,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
                 txtbox.AppendText("\n\n- You've choosen a Backup Name.");
                 txtbox.AppendText("\n\n- Your Quest is on.");
+                txtbox.ScrollToEnd();
 
             }
             getBackups(exe + "\\Playlists");
@@ -1081,6 +1085,7 @@ namespace Quest_Song_Exporter
             if (!CheckIP())
             {
                 txtbox.AppendText("\n\nChoose a valid IP!");
+                txtbox.ScrollToEnd();
                 Running = false;
                 return;
             }
@@ -1102,6 +1107,7 @@ namespace Quest_Song_Exporter
                 }
 
                 txtbox.AppendText("\n\nRestoring Playlist from " + exe + "\\Playlists\\" + Backups.SelectedValue + ".json");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
 
 
@@ -1141,6 +1147,7 @@ namespace Quest_Song_Exporter
                 txtbox.AppendText("\n\n\nAn error occured (Code: BMBF100). Check following:");
                 txtbox.AppendText("\n\n- Your Quest is on and BMBF opened");
                 txtbox.AppendText("\n\n- You put in the Quests IP right.");
+                txtbox.ScrollToEnd();
             }
             Running = false;
         }
@@ -1282,6 +1289,7 @@ namespace Quest_Song_Exporter
             if((bool)auto.IsChecked)
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 if (!copied)
                 {
@@ -1299,7 +1307,8 @@ namespace Quest_Song_Exporter
                     Source = exe + "\\tmp";
                 }
                 txtbox.AppendText("\n\nZipping Songs");
-                
+                txtbox.ScrollToEnd();
+
             }
 
             string[] directories = Directory.GetDirectories(Source);
@@ -1314,6 +1323,7 @@ namespace Quest_Song_Exporter
                 if (!File.Exists(CD + "\\" + "Info.dat") && !File.Exists(CD + "\\" + "info.dat"))
                 {
                     txtbox.AppendText("\n" + CD + " is no Song");
+                    txtbox.ScrollToEnd();
                     continue;
                 }
                 String dat = "";
@@ -1426,6 +1436,7 @@ namespace Quest_Song_Exporter
 
             txtbox.AppendText("\n");
             txtbox.AppendText("\n");
+            txtbox.ScrollToEnd();
             if (exported == 0 && (bool)auto.IsChecked)
             {
                 txtbox.AppendText("\nerror (Code: QSU110). No Songs were zipped.");
@@ -1544,6 +1555,7 @@ namespace Quest_Song_Exporter
                 if((bool)!auto.IsChecked)
                 {
                     txtbox.AppendText("\n\nChoose a Source folder!");
+                    txtbox.ScrollToEnd();
                     return;
                 }
             }
@@ -1585,6 +1597,7 @@ namespace Quest_Song_Exporter
             }
             String dest = exe + "\\tmp\\Zips";
             txtbox.AppendText("\nUnziping files to temporary folder.");
+            txtbox.ScrollToEnd();
 
             foreach (String CD in directories)
             {
@@ -1601,6 +1614,7 @@ namespace Quest_Song_Exporter
 
             }
             txtbox.AppendText("\nUnziping complete.");
+            txtbox.ScrollToEnd();
             IndexSongs(dest, Path, true, download);
         }
 
@@ -1633,6 +1647,7 @@ namespace Quest_Song_Exporter
             if ((bool)auto.IsChecked)
             {
                 txtbox.AppendText("\nAuto Mode enabled! Copying all Songs to " + exe + "\\tmp. Please be patient.");
+                txtbox.ScrollToEnd();
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                 if(!copied)
                 {
@@ -1662,10 +1677,12 @@ namespace Quest_Song_Exporter
                 requierments.Clear();
                 //Check if Folder is Valid Song
                 txtbox.AppendText("\n");
+                txtbox.ScrollToEnd();
 
                 if (!File.Exists(CD + "\\" + "Info.dat") && !File.Exists(CD + "\\" + "info.dat"))
                 {
                     txtbox.AppendText("\n" + CD + " is no Song");
+                    txtbox.ScrollToEnd();
                     continue;
                 }
                 String dat = "";
@@ -1844,6 +1861,7 @@ namespace Quest_Song_Exporter
                     }
                     txtbox.AppendText("\nRequierments: " + Content);
                     requiered.Add(Content);
+                    txtbox.ScrollToEnd();
                 }
                 catch
                 {
@@ -1917,6 +1935,7 @@ namespace Quest_Song_Exporter
             {
                 txtbox.AppendText("\nAuto Mode was enabled. Your finished Songs are at the program location in a folder named CustomSongs.");
             }
+            txtbox.ScrollToEnd();
             Running = false;
         }
     }
