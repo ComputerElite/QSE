@@ -1,4 +1,4 @@
-https://github.com/ComputerElite/QSE/releases/download/3.12.1/QSU.zip
+https://github.com/ComputerElite/QSU/releases/latest/download/QSU.zip
 3
 12
-1
+2
