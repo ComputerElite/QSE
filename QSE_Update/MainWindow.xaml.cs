@@ -1,5 +1,7 @@
-﻿using System;
+﻿using SimpleJSON;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -26,14 +28,16 @@ namespace QSE_Update
     /// </summary>
     public partial class MainWindow : Window
     {
-        String exe = System.Reflection.Assembly.GetEntryAssembly().Location;
+        String exe = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.Length - 1);
+
+        int MajorU = 0;
+        int MinorU = 0;
+        int PatchU = 0;
 
         public MainWindow()
         {
             InitializeComponent();
-            exe = exe.Replace("\\QSE_Update.exe", "");
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-            Thread.Sleep(5000);
             if(File.Exists(exe + "\\Microsoft.WindowsAPICodePack.dll"))
             {
                 File.Delete(exe + "\\Microsoft.WindowsAPICodePack.dll");
@@ -54,70 +58,57 @@ namespace QSE_Update
             {
                 File.Delete(exe + "\\Quest Song Exporter.exe");
             }
+            if (File.Exists(exe + "\\Quest Song Utilities.exe"))
+            {
+                File.Delete(exe + "\\Quest Song Utilities.exe");
+            }
 
             if(!Directory.Exists(exe + "\\tmp"))
             {
                 Directory.CreateDirectory(exe + "\\tmp");
             }
 
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
-            }
-
-            StreamReader VReader = new StreamReader(exe + "\\tmp\\Update.txt");
-
-            String line;
-            int l = 0;
-
-            int MajorU = 0;
-            int MinorU = 0;
-            int PatchU = 0;
-            String URL = "";
-            while ((line = VReader.ReadLine()) != null)
-            {
-                if (l == 0)
-                {
-                    URL = line;
-                }
-                if (l == 1)
-                {
-                    MajorU = Convert.ToInt32(line);
-                }
-                if (l == 2)
-                {
-                    MinorU = Convert.ToInt32(line);
-                }
-                if (l == 3)
-                {
-                    PatchU = Convert.ToInt32(line);
-                }
-                l++;
-            }
+            JSONNode Update = JSON.Parse("{}");
 
             using (WebClient client = new WebClient())
             {
-                client.DownloadFile(URL, exe + "\\tmp\\QSE_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip");
+                Update = JSON.Parse(client.DownloadString("https://raw.githubusercontent.com/ComputerElite/QSE/master/update.json"));
             }
-            ZipFile.ExtractToDirectory(exe + "\\tmp\\QSE_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip", exe);
-            txtbox.AppendText("\nFinished Updating");
-            File.Delete(exe + "\\tmp\\QSE_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip");
-            ProcessStartInfo s = new ProcessStartInfo();
-            s.CreateNoWindow = false;
-            s.UseShellExecute = false;
-            s.FileName = exe + "\\Quest Song Exporter.exe";
+
+            MajorU = Update["Updates"][0]["Major"];
+            MinorU = Update["Updates"][0]["Minor"];
+            PatchU = Update["Updates"][0]["Patch"];
+
+            txtbox.Text = "Downloading Quest Song Utilities";
+
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(client_DownloadProgressChanged);
+                client.DownloadFileCompleted += new AsyncCompletedEventHandler(client_DownloadFileCompleted);
+                client.DownloadFileAsync(new Uri(Update["Updates"][0]["Download"]), exe + "\\tmp\\QSU_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip");
+            }
+        }
+
+        private void client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            ZipFile.ExtractToDirectory(exe + "\\tmp\\QSU_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip", exe);
+            File.Delete(exe + "\\tmp\\QSU_V_" + MajorU + "_" + MinorU + "_" + PatchU + ".zip");
             try
             {
-                // Start the process with the info we specified.
-                // Call WaitForExit and then the using statement will close.
-                using (Process exeProcess = Process.Start(s))
-                {
-                }
-                this.Close();
-            } catch
-            {
-
+                Process.Start(exe + "\\Quest Song Utilities.exe");
+                Process.GetCurrentProcess().Kill();
             }
+            catch
+            {
+            }
+        }
+
+        private void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            double bytesIn = double.Parse(e.BytesReceived.ToString());
+            double totalBytes = double.Parse(e.TotalBytesToReceive.ToString());
+            double percentage = bytesIn / totalBytes * 100;
+            Progress.Value = int.Parse(Math.Truncate(percentage).ToString());
         }
     }
 }
