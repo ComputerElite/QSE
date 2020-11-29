@@ -39,7 +39,7 @@ namespace Quest_Song_Exporter
 
         int MajorV = 3;
         int MinorV = 12;
-        int PatchV = 2;
+        int PatchV = 3;
         Boolean Preview = false;
 
         String IP = "";
@@ -1339,16 +1339,7 @@ namespace Quest_Song_Exporter
                 }
                 try
                 {
-                    StreamReader reader = new StreamReader(@dat);
-                    String text = "";
-                    String line;
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        text = text + line;
-                    }
-
-                    var json = SimpleJSON.JSON.Parse(text);
+                    var json = SimpleJSON.JSON.Parse(File.ReadAllText(dat));
                     Name = json["_songName"].ToString();
 
                     Name = Name.Replace("/", "");
@@ -1422,8 +1413,6 @@ namespace Quest_Song_Exporter
                     Name = "";
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
                     txtbox.ScrollToEnd();
-
-                 reader.Close();
                 }
                 catch
                 {
