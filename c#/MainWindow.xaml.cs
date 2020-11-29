@@ -54,12 +54,36 @@ namespace Quest_Song_Exporter
         Boolean OneClick = false;
         Boolean OneClickQSU = false;
         Boolean Converted = false;
+        Boolean ComeFromUpdate = false;
         String exe = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.Length - 1);
         ArrayList P = new ArrayList();
         int Lists = 0;
         int Open = 0;
         String args = "";
         String Log = "";
+        JSONNode UpdateJSON = JSON.Parse("{}");
+
+        public void Changelog()
+        {
+            if (ComeFromUpdate)
+            {
+                String creators = "";
+                foreach (JSONNode Creator in UpdateJSON["Updates"][0]["Creators"])
+                {
+                    creators = creators + Creator.ToString().Replace("\"", "") + ", ";
+                }
+                if (creators.Length >= 2)
+                {
+                    creators = creators.Substring(0, creators.Length - 2);
+                }
+                else
+                {
+                    creators = "ComputerElite";
+                }
+                txtbox.AppendText("\n\n\nYou installed a Update (Version: " + MajorV + "." + MinorV + "." + PatchV + ").\n\nUpdate posted by: " + creators + "\n\nChangelog:\n" + UpdateJSON["Updates"][0]["Changelog"]);
+            }
+
+        }
 
         public async Task KeyAsync(String key)
         {
@@ -182,6 +206,8 @@ namespace Quest_Song_Exporter
 
             checks();
             QuestIP();
+            Changelog();
+            ComeFromUpdate = false;
         }
 
         public void checks()
@@ -192,10 +218,7 @@ namespace Quest_Song_Exporter
                 return;
             }
 
-            StreamReader r = new StreamReader(@exe + "\\Info.json");
-            String Info = r.ReadToEnd();
-            r.Close();
-            var json = JSON.Parse(Info);
+            var json = JSON.Parse(File.ReadAllText(exe + "\\Info.json"));
 
             if(!json["Version"].ToString().Equals("\"" + MajorV.ToString() + MinorV.ToString() + PatchV.ToString() + "\""))
             {
@@ -210,6 +233,7 @@ namespace Quest_Song_Exporter
 
             Quest.Text = json["IP"];
             Converted = json["pConverted"].AsBool;
+            ComeFromUpdate = json["ComeFromUpdate"].AsBool;
 
             OneClick = json["OneClickInstalled"].AsBool;
             OneClickQSU = json["OneClickInstalledQSU"].AsBool;
@@ -241,6 +265,7 @@ namespace Quest_Song_Exporter
             json["OneClickInstalledQSU"] = OneClickQSU;
             json["IP"] = IP;
             json["pConverted"] = Converted;
+            json["ComeFromUpdate"] = ComeFromUpdate;
             File.WriteAllText(exe + "\\Info.json", json.ToString());
         }
 
@@ -409,13 +434,23 @@ namespace Quest_Song_Exporter
             s.FileName = "adb.exe";
             s.WindowStyle = ProcessWindowStyle.Minimized;
             s.Arguments = Argument;
+            s.RedirectStandardOutput = true;
             try
             {
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(s))
                 {
+                    String IPS = exeProcess.StandardOutput.ReadToEnd();
                     exeProcess.WaitForExit();
+                    if (IPS.Contains("no devices/emulators found"))
+                    {
+                        txtbox.AppendText("\n\n\nAn error Occured (Code: ADB100). Check following");
+                        txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
+                        txtbox.AppendText("\n\n- You have adb installed.");
+                        txtbox.ScrollToEnd();
+                        return false;
+                    }
                     return true;
                 }
             }
@@ -428,13 +463,23 @@ namespace Quest_Song_Exporter
                 se.FileName = User + "\\AppData\\Roaming\\SideQuest\\platform-tools\\adb.exe";
                 se.WindowStyle = ProcessWindowStyle.Minimized;
                 se.Arguments = Argument;
+                se.RedirectStandardOutput = true;
                 try
                 {
                     // Start the process with the info we specified.
                     // Call WaitForExit and then the using statement will close.
                     using (Process exeProcess = Process.Start(se))
                     {
+                        String IPS = exeProcess.StandardOutput.ReadToEnd();
                         exeProcess.WaitForExit();
+                        if (IPS.Contains("no devices/emulators found"))
+                        {
+                            txtbox.AppendText("\n\n\nAn error Occured (Code: ADB100). Check following");
+                            txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
+                            txtbox.AppendText("\n\n- You have adb installed.");
+                            txtbox.ScrollToEnd();
+                            return false;
+                        }
                         return true;
                     }
                 }
@@ -444,9 +489,10 @@ namespace Quest_Song_Exporter
                     txtbox.AppendText("\n\n\nAn error Occured (Code: ADB100). Check following");
                     txtbox.AppendText("\n\n- Your Quest is connected and USB Debugging enabled.");
                     txtbox.AppendText("\n\n- You have adb installed.");
+                    txtbox.ScrollToEnd();
+                    return false;
                 }
             }
-            return false;
         }
 
         public String adbS(String Argument)
@@ -817,53 +863,25 @@ namespace Quest_Song_Exporter
         {
             try
             {
-                //Download Update.txt
-                if(!File.Exists(exe + "\\tmp\\Update.txt"))
+                using (WebClient client = new WebClient())
                 {
-                    using (WebClient client = new WebClient())
+                    try
                     {
-                        try
-                        {
-                            client.DownloadFile("https://raw.githubusercontent.com/ComputerElite/QSE/master/Update.txt", exe + "\\tmp\\Update.txt");
-                        }
-                        catch
-                        {
-                            txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
-                            txtbox.AppendText("\n\n- Your PC has internet.");
-                            txtbox.ScrollToEnd();
-                        }
+                        UpdateJSON = JSON.Parse(client.DownloadString("https://raw.githubusercontent.com/ComputerElite/QSE/master/update.json"));
+                    }
+                    catch
+                    {
+                        txtbox.AppendText("\n\n\nAn error Occured (Code: UD100). Couldn't check for Updates. Check following");
+                        txtbox.AppendText("\n\n- Your PC has internet.");
+                        return;
                     }
                 }
-                StreamReader VReader = new StreamReader(exe + "\\tmp\\Update.txt");
 
-                String line;
-                int l = 0;
+                int MajorU = UpdateJSON["Updates"][0]["Major"];
+                int MinorU = UpdateJSON["Updates"][0]["Minor"];
+                int PatchU = UpdateJSON["Updates"][0]["Patch"];
 
-                int MajorU = 0;
-                int MinorU = 0;
-                int PatchU = 0;
-                while ((line = VReader.ReadLine()) != null)
-                {
-                    if (l == 0)
-                    {
-                        String URL = line;
-                    }
-                    if(l == 1)
-                    {
-                        MajorU = Convert.ToInt32(line);
-                    }
-                    if(l == 2)
-                    {
-                        MinorU = Convert.ToInt32(line);
-                    }
-                    if(l == 3)
-                    {
-                        PatchU = Convert.ToInt32(line);
-                    }
-                    l++;
-                }
-
-                if(MajorU > MajorV || MinorU > MinorV || PatchU > PatchV)
+                if (MajorU > MajorV || MinorU > MinorV || PatchU > PatchV)
                 {
                     //Newer Version available
                     UpdateB.Visibility = Visibility.Visible;
@@ -886,46 +904,32 @@ namespace Quest_Song_Exporter
                     txtbox.AppendText("\n\nLooks like you have a preview version. Downgrade now from " + MajorV + "." + MinorV + "." + PatchV + " to " + MajorU + "." + MinorU + "." + PatchU + " xD");
                     UpdateB.Visibility = Visibility.Visible;
                     UpdateB.Content = "Downgrade Now xD";
-                    txtbox.ScrollToEnd();
                 }
                 if (VersionV == VersionU && Preview)
                 {
                     //User has Preview Version but a release Version has been released
                     txtbox.AppendText("\n\nLooks like you have a preview version. The release version has been released. Please Update now. ");
                     UpdateB.Visibility = Visibility.Visible;
-                    txtbox.ScrollToEnd();
                 }
-                VReader.Close();
-            } catch
+            }
+            catch
             {
 
-            }
-            try
-            {
-                File.Delete(exe + "\\tmp\\Update.txt");
-            } catch
-            {
             }
         }
 
         private void Start_Update(object sender, RoutedEventArgs e)
         {
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadFile("https://github.com/ComputerElite/QSE/raw/master/QSE_Update.exe", exe + "\\QSU_Update.exe");
-            }
-            //Process.Start(exe + "\\QSU_Update.exe");
-            ProcessStartInfo s = new ProcessStartInfo();
-            s.CreateNoWindow = false;
-            s.UseShellExecute = false;
-            s.FileName = exe + "\\QSU_Update.exe";
             try
             {
-                using (Process exeProcess = Process.Start(s))
+                using (WebClient client = new WebClient())
                 {
+                    client.DownloadFile("https://github.com/ComputerElite/QSE/raw/master/QSE_Update.exe", exe + "\\QSU_Update.exe");
                 }
+                Process.Start(exe + "\\QSU_Update.exe");
+                ComeFromUpdate = true;
                 saveInfo();
-                this.Close();
+                Process.GetCurrentProcess().Kill();
             }
             catch
             {
